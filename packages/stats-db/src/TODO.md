@@ -2,15 +2,15 @@
 
 ## NPM data
 
-- [x] 1. whitelist/blacklist in TS code: whitelist will insert npm packages, blacklist will delete npm packages cascading all foreign keys
+- [x] 1. package configuration/blacklist in TS code: configured packages will be processed, blacklist will delete npm packages cascading all foreign keys
 - [x] 2. blacklist: '@chainmos' namespace packages
 - [x] 3. refactor schema.sql to npm_schema.sql
 
 ## GitHub data
 
-- [ ] 1. whitelist/blacklist in TS code: whitelist will insert npm packages, blacklist will delete npm packages cascading all foreign keys
+- [ ] 1. organization configuration/blacklist in TS code: configured organizations will be processed, blacklist will delete github data cascading all foreign keys
 - [ ] 2. github schema: github.sql
-- [ ] 3. Make sure we have blacklist/whitelist as well
+- [ ] 3. Make sure we have blacklist/organization configuration as well
 - [ ] 4. API in Typescript side: given an array of orgs, return all repos, then process further
 - [ ] 5. Find a way to get the fork date of a repo, and use that to filter out the commits from that date
 - [ ] 6. Index contribution per date, data should be as granular as possible

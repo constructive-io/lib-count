@@ -101,14 +101,13 @@ export async function insertPackage(
 ): Promise<void> {
   const query = `
     INSERT INTO npm_count.npm_package (
-      package_name, 
+      package_name,
       creation_date,
       last_publish_date
     )
     VALUES ($1, $2, $3)
-    ON CONFLICT (package_name) 
-    DO UPDATE SET 
-      creation_date = EXCLUDED.creation_date,
+    ON CONFLICT (package_name)
+    DO UPDATE SET
       last_publish_date = EXCLUDED.last_publish_date,
       updated_at = CURRENT_TIMESTAMP;
   `;
@@ -237,11 +236,12 @@ export async function getAllPackages(
   client: PoolClient
 ): Promise<Array<{ packageName: string; creationDate: Date }>> {
   const query = `
-    SELECT DISTINCT 
+    SELECT DISTINCT
       package_name,
       creation_date
     FROM npm_count.npm_package
-    ORDER BY creation_date ASC;
+    WHERE is_active = true
+    ORDER BY package_name;
   `;
 
   const result = await client.query(query);

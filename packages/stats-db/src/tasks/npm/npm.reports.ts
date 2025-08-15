@@ -36,20 +36,33 @@ async function getPackageStats(
   const daysSinceUpdate = parseInt(dataRangeCheck.rows[0].days_since_update);
   const isStale = daysSinceUpdate > 7; // Consider data stale if more than 7 days old
 
-  // Adjust date ranges based on data availability
+  // Calculate fixed calendar periods for consistent reporting
   let weekStart, monthStart;
 
   if (isStale) {
     // If data is stale, use the last available week/month of data
-    weekStart = `'${latestDate}'::date - INTERVAL '7 days'`;
-    monthStart = `'${latestDate}'::date - INTERVAL '30 days'`;
+    // Use calendar week/month boundaries relative to latest available date
+    const latestDateObj = new Date(latestDate);
+    const weekStartDate = new Date(latestDateObj);
+    weekStartDate.setUTCDate(weekStartDate.getUTCDate() - 7);
+    const monthStartDate = new Date(latestDateObj);
+    monthStartDate.setUTCDate(monthStartDate.getUTCDate() - 30);
+
+    weekStart = `'${weekStartDate.toISOString().split("T")[0]}'::date`;
+    monthStart = `'${monthStartDate.toISOString().split("T")[0]}'::date`;
     console.log(
-      `Using historical data for ${packageName} (${daysSinceUpdate} days old)`
+      `Using historical data for ${packageName} (${daysSinceUpdate} days old) - Week: ${weekStartDate.toISOString().split("T")[0]}, Month: ${monthStartDate.toISOString().split("T")[0]}`
     );
   } else {
-    // Use current time periods if data is fresh
-    weekStart = "NOW() - INTERVAL '7 days'";
-    monthStart = "NOW() - INTERVAL '30 days'";
+    // Use fixed calendar periods for consistent reporting
+    const now = new Date();
+    const weekStartDate = new Date(now);
+    weekStartDate.setUTCDate(weekStartDate.getUTCDate() - 7);
+    const monthStartDate = new Date(now);
+    monthStartDate.setUTCDate(monthStartDate.getUTCDate() - 30);
+
+    weekStart = `'${weekStartDate.toISOString().split("T")[0]}'::date`;
+    monthStart = `'${monthStartDate.toISOString().split("T")[0]}'::date`;
   }
 
   // Get download stats using appropriate date ranges
@@ -187,8 +200,7 @@ async function getLifetimeDownloadsByCategory(
 
   let latestDate: string | null = null;
   let isDataStale = false;
-  let weekStart = "NOW() - INTERVAL '7 days'";
-  let monthStart = "NOW() - INTERVAL '30 days'";
+  let weekStart, monthStart;
 
   if (recentDataCheck.rows.length > 0) {
     const dataInfo = recentDataCheck.rows[0];
@@ -206,13 +218,41 @@ async function getLifetimeDownloadsByCategory(
     });
 
     if (isDataStale) {
-      // If data is stale, use the last available week/month of data
-      weekStart = `'${latestDate}'::date - INTERVAL '7 days'`;
-      monthStart = `'${latestDate}'::date - INTERVAL '30 days'`;
-      console.log(`Using historical data periods relative to ${latestDate}`);
+      // If data is stale, use fixed calendar periods relative to latest available date
+      const latestDateObj = new Date(latestDate);
+      const weekStartDate = new Date(latestDateObj);
+      weekStartDate.setUTCDate(weekStartDate.getUTCDate() - 7);
+      const monthStartDate = new Date(latestDateObj);
+      monthStartDate.setUTCDate(monthStartDate.getUTCDate() - 30);
+
+      weekStart = `'${weekStartDate.toISOString().split("T")[0]}'::date`;
+      monthStart = `'${monthStartDate.toISOString().split("T")[0]}'::date`;
+      console.log(
+        `Using historical data periods relative to ${latestDate} - Week: ${weekStartDate.toISOString().split("T")[0]}, Month: ${monthStartDate.toISOString().split("T")[0]}`
+      );
+    } else {
+      // Use fixed calendar periods for consistent reporting
+      const now = new Date();
+      const weekStartDate = new Date(now);
+      weekStartDate.setUTCDate(weekStartDate.getUTCDate() - 7);
+      const monthStartDate = new Date(now);
+      monthStartDate.setUTCDate(monthStartDate.getUTCDate() - 30);
+
+      weekStart = `'${weekStartDate.toISOString().split("T")[0]}'::date`;
+      monthStart = `'${monthStartDate.toISOString().split("T")[0]}'::date`;
     }
   } else {
     console.log("No data found in daily_downloads table");
+    // Set default periods even if no data
+    const now = new Date();
+    const weekStartDate = new Date(now);
+    weekStartDate.setUTCDate(weekStartDate.getUTCDate() - 7);
+    const monthStartDate = new Date(now);
+    monthStartDate.setUTCDate(monthStartDate.getUTCDate() - 30);
+
+    weekStart = `'${weekStartDate.toISOString().split("T")[0]}'::date`;
+    monthStart = `'${monthStartDate.toISOString().split("T")[0]}'::date`;
+
     return {
       total: 0,
       byCategory: {},

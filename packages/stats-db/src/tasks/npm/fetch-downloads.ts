@@ -14,9 +14,7 @@ const npmClient = new NPMApiClient();
 
 const CONCURRENT_TASKS = 200; // Number of concurrent downloads
 const RATE_LIMIT_DELAY = 50; // ms between requests
-const CHUNK_SIZE = 30; // days per chunk
-const PACKAGE_WHITELIST = new Set([]);
-const USE_WHITELIST = PACKAGE_WHITELIST.size > 0;
+const CHUNK_SIZE = 365; // days per chunk (as per documented algorithm)
 
 const MAX_RETRIES = 3;
 const INITIAL_RETRY_DELAY = 1000; // 1 second
@@ -45,21 +43,29 @@ function getDateChunks(startDate: Date, endDate: Date): DateRange[] {
   );
 
   while (currentStart < finalEndDate) {
-    // Create a new chunk
+    // Create a new chunk with proper 365-day boundaries
     const chunkEnd = new Date(currentStart);
     chunkEnd.setUTCDate(chunkEnd.getUTCDate() + CHUNK_SIZE - 1);
 
     // Ensure we don't go past the final end date
     const actualEnd = chunkEnd > finalEndDate ? finalEndDate : chunkEnd;
 
-    chunks.push({
-      start: new Date(currentStart),
-      end: new Date(actualEnd),
-    });
+    // Only add chunk if there's at least one day to process
+    if (currentStart <= actualEnd) {
+      chunks.push({
+        start: new Date(currentStart),
+        end: new Date(actualEnd),
+      });
+    }
 
-    // Move to next chunk
+    // Move to next chunk (start day after current chunk ends)
     currentStart = new Date(actualEnd);
     currentStart.setUTCDate(currentStart.getUTCDate() + 1);
+
+    // Prevent infinite loop
+    if (currentStart > finalEndDate) {
+      break;
+    }
   }
 
   return chunks;
@@ -283,17 +289,6 @@ async function run(shouldResetDb: boolean = false): Promise<void> {
       creationDate: pkg.creationDate,
     }));
 
-    // Filter by whitelist if enabled
-    if (USE_WHITELIST) {
-      const originalCount = packages.length;
-      packages = packages.filter((pkg) =>
-        PACKAGE_WHITELIST.has(pkg.packageName)
-      );
-      console.log(
-        `Filtered ${originalCount} packages to ${packages.length} whitelisted packages`
-      );
-    }
-
     const totalPackages = packages.length;
     if (totalPackages === 0) {
       console.log("No packages to process!");
@@ -305,7 +300,7 @@ async function run(shouldResetDb: boolean = false): Promise<void> {
         totalPackages === 1 ? "" : "s"
       } to process with ${CONCURRENT_TASKS} concurrent tasks${
         shouldResetDb ? " (RESET mode)" : ""
-      }${USE_WHITELIST ? " (WHITELIST mode)" : ""}`
+      }`
     );
 
     let successCount = 0;
