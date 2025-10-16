@@ -417,6 +417,27 @@ function writeBadgeFile(
   console.log(`Badge file written to ${filePath}`);
 }
 
+function ensureEmptyDirectory(dirPath: string): void {
+  fs.rmSync(dirPath, { recursive: true, force: true });
+  fs.mkdirSync(dirPath, { recursive: true });
+}
+
+function copyDirectoryContents(srcDir: string, destDir: string): void {
+  fs.mkdirSync(destDir, { recursive: true });
+  const entries = fs.readdirSync(srcDir, { withFileTypes: true });
+
+  for (const entry of entries) {
+    const srcPath = path.join(srcDir, entry.name);
+    const destPath = path.join(destDir, entry.name);
+
+    if (entry.isDirectory()) {
+      copyDirectoryContents(srcPath, destPath);
+    } else if (entry.isFile()) {
+      fs.copyFileSync(srcPath, destPath);
+    }
+  }
+}
+
 /**
  * Get the current timestamp in YYYY-MM-DD format
  */
@@ -455,6 +476,7 @@ async function generateBadges(
   // Set output directory for badges - using 'badges' as the top-level folder at project root
   // Updated to use hyperweb-contributions repository structure
   const basePath = path.resolve(__dirname, "../../../../../output/badges");
+  ensureEmptyDirectory(basePath);
   const libCountOutputDir = path.join(basePath, "lib-count");
   const productsOutputDir = path.join(basePath, "products");
 
@@ -570,6 +592,14 @@ async function generateBadges(
   console.log(
     "All badges generated successfully for hyperweb-contributions repository"
   );
+
+  // Sync lib-count badges to output/badges root
+  copyDirectoryContents(libCountOutputDir, basePath);
+
+  // Mirror output/badges to top-level badges directory
+  const repoBadgesDir = path.resolve(__dirname, "../../../../../badges");
+  ensureEmptyDirectory(repoBadgesDir);
+  copyDirectoryContents(basePath, repoBadgesDir);
 }
 
 async function generateReport(): Promise<string> {

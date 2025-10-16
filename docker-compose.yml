@@ -1,6 +1,6 @@
 services:
   postgres:
-    container_name: postgres
+    container_name: statsdb-postgres
     image: pyramation/postgis
     environment:
       - "POSTGRES_USER=postgres"
