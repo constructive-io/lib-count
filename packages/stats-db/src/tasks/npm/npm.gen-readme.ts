@@ -312,14 +312,21 @@ function generateBadgesSection(repoName: string): string {
 
 function generateIntroSection(): string {
   return `
-## 🚀 Cosmology is Now Hyperweb!
+## 🚀 Interweb, Inc.
+
+### Hyperweb
 
 We\'re thrilled to share that [**Cosmology** has rebranded as **Hyperweb**](https://hyperweb.io/blog/01-28-2025-journey-from-cosmology-to-hyperweb)! 🎉
 
-🔗 **New GitHub Organization:** [**hyperweb-io**](https://github.com/hyperweb-io)
-🌐 **New Website:** [**hyperweb.io**](https://hyperweb.io)
+- 🔗 **Hyperweb GitHub Organization:** [**hyperweb-io**](https://github.com/hyperweb-io)
+- 🌐 **Hyperweb Website:** [**hyperweb.io**](https://hyperweb.io)
 
-📺 **Watch the [Hyperweb Announcement](https://www.youtube.com/watch?v=a_G2_KXRf1Y&list=PL_XyHnlG9MMvekTCbbJArAOwVlkCY54V5&index=2)**
+📺 **Watch the [Hyperweb Announcement](https://www.youtube.com/watch?v=a_G2_KXRf1Y&list=PL_XyHnlG9MMvekTCbbJArAOwVlkCY54V5&index=2)**  
+
+### LaunchQL
+
+- 🔗 **LaunchQL GitHub Organization:** [**launchql**](https://github.com/launchql)
+- 🌐 **LaunchQL Website:** [**launchql.io**](https://launchql.com)
 
 `; // Ensured two newlines for a blank line before the --- separator
 }
@@ -332,7 +339,7 @@ function generateStackIntro(): string {
 
 A unified toolkit for building applications and smart contracts in the Interchain ecosystem with JavaScript.
 
-| [Developer Portal](https://hyperweb.io): Quick Start | [Hyperweb Discord](https://discord.com/invite/xh3ZwHj2qQ): Support & Community | [GitHub Discussions](https://github.com/orgs/hyperweb-io/discussions): Technical Hub |
+| [Developer Portal](https://hyperweb.io): Quick Start | [Interweb Discord](https://discord.com/invite/xh3ZwHj2qQ): Support & Community | [GitHub Discussions](https://github.com/orgs/hyperweb-io/discussions): Technical Hub |
 |:---:|:---:|:---:|
 
 A unified toolkit for building applications and smart contracts in the Interchain ecosystem ⚛️
