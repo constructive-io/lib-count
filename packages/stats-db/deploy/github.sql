@@ -1,11 +1,6 @@
--- Drop the schema if it exists
-DROP SCHEMA IF EXISTS github CASCADE;
+-- Deploy: github
+-- made with <3 @ launchql.com
 
--- Enable required extensions
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-CREATE EXTENSION IF NOT EXISTS btree_gist;
-
--- Create the schema if it doesn't exist
 CREATE SCHEMA IF NOT EXISTS github;
 
 -- Create the organizations table
@@ -138,10 +133,10 @@ CREATE INDEX idx_org_connection_target ON github.organization_connection(target_
 CREATE INDEX idx_contribution_summary_author ON github.contribution_summary(author_id);
 CREATE INDEX idx_contribution_summary_org ON github.contribution_summary(organization_id);
 
-CREATE INDEX CONCURRENTLY IF NOT EXISTS repo_owner_idx ON github.repository (owner_id);
-CREATE INDEX CONCURRENTLY IF NOT EXISTS contribution_repo_idx ON github.daily_contribution (repository_id);
-CREATE INDEX CONCURRENTLY IF NOT EXISTS contribution_author_idx ON github.daily_contribution (author_id);
-CREATE INDEX CONCURRENTLY IF NOT EXISTS org_connection_source_idx ON github.organization_connection (source_org_id); 
+CREATE INDEX repo_owner_idx ON github.repository (owner_id);
+CREATE INDEX contribution_repo_idx ON github.daily_contribution (repository_id);
+CREATE INDEX contribution_author_idx ON github.daily_contribution (author_id);
+CREATE INDEX org_connection_source_idx ON github.organization_connection (source_org_id); 
 
 -- Create timestamp update trigger
 CREATE OR REPLACE FUNCTION github.update_updated_at()

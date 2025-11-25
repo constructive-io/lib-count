@@ -1,9 +1,5 @@
--- Drop the schema if it exists
-DROP SCHEMA IF EXISTS npm_count CASCADE;
-
--- Enable required extensions
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-CREATE EXTENSION IF NOT EXISTS btree_gist;
+-- Deploy: npm
+-- made with <3 @ launchql.com
 
 -- Create the schema if it doesn't exist
 CREATE SCHEMA IF NOT EXISTS npm_count;
@@ -110,11 +106,11 @@ CREATE INDEX idx_daily_downloads_package_date
 CREATE INDEX idx_daily_downloads_package_date_range
     ON npm_count.daily_downloads(package_name, date DESC);
 
-CREATE INDEX IF NOT EXISTS idx_npm_package_tags ON npm_count.npm_package USING gin (tags);
+-- CREATE INDEX idx_npm_package_tags ON npm_count.npm_package USING gin (tags);
 
-CREATE INDEX IF NOT EXISTS idx_package_category_package ON npm_count.package_category(package_id);
+CREATE INDEX idx_package_category_package ON npm_count.package_category(package_id);
 
-CREATE INDEX IF NOT EXISTS idx_package_category_category ON npm_count.package_category(category_id);
+CREATE INDEX idx_package_category_category ON npm_count.package_category(category_id);
 
 -- Add statistics gathering
 COMMENT ON TABLE npm_count.daily_downloads IS 'Daily download statistics for npm packages';
