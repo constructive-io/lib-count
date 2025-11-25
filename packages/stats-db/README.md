@@ -1,45 +1,112 @@
 ## Database Schema Management
 
-### Load Schema
+### Prerequisites
 
-You can manage database schemas using the schema.sh script. The script supports both resetting all schemas and individual schema management.
+Before deploying the database, ensure you have the required tools installed:
 
-```sh
-# Set PostgreSQL environment variables
-export PGUSER="postgres"
-export PGPASSWORD="password"
-export PGHOST="localhost"
-export PGPORT="5432"
+- **Node.js 20+** - Required for pgpm
+- **PostgreSQL** - Running locally or via Docker
+- **pgpm** - PostgreSQL Package Manager
 
-# Reset all schemas (npm_count and github)
-./scripts/schema.sh
+Install pgpm globally:
 
-# Reset only npm_count schema
-./scripts/schema.sh -s npm
-
-# Reset only github schema
-./scripts/schema.sh -s github
-
-# Show help and usage information
-./scripts/schema.sh --help
+```bash
+npm install -g pgpm
 ```
 
-### Schema CLI Options
+For detailed setup instructions, see the [Prerequisites Guide](/docs/quickstart/01_prerequisites.md).
 
+### Start PostgreSQL (Docker)
+
+If using Docker, start PostgreSQL with pgpm:
+
+```bash
+pgpm docker start
 ```
-Usage: ./scripts/schema.sh [OPTIONS]
-Manages database schemas for the example_db database
 
-Options:
-  -h, --help     Show this help message
-  -s, --schema   Specify schema to reset (npm or github)
-                 If not specified, resets all schemas
+This command:
+- Pulls the PostgreSQL Docker image (if not already downloaded)
+- Starts PostgreSQL with default configuration
+- Sets up a ready-to-use database
 
-Examples:
-  ./scripts/schema.sh             Reset all schemas
-  ./scripts/schema.sh -s npm      Reset only npm schema
-  ./scripts/schema.sh -s github   Reset only github schema
+### Set Environment Variables
+
+Configure your PostgreSQL connection using pgpm:
+
+```bash
+eval "$(pgpm env)"
 ```
+
+This automatically sets:
+- `PGHOST=localhost`
+- `PGPORT=5432`
+- `PGUSER=postgres`
+- `PGPASSWORD=password`
+- `PGDATABASE=postgres`
+
+> **Tip:** Add `eval "$(pgpm env)"` to your shell config (`~/.bashrc`, `~/.zshrc`, etc.) to automatically set these variables in new terminal sessions.
+
+Alternatively, set them manually:
+
+```bash
+export PGHOST=localhost
+export PGPORT=5432
+export PGUSER=postgres
+export PGPASSWORD=password
+export PGDATABASE=postgres
+```
+
+### Bootstrap Database Users
+
+Create database users for testing and development (run once):
+
+```bash
+pgpm admin-users bootstrap --yes
+```
+
+This creates `anonymous`, `authenticated`, and `administrator` roles.
+
+### Deploy the Database Module
+
+Deploy the stats-db module to create the database schemas (npm and github):
+
+```bash
+# Create the database and deploy the module
+pgpm deploy --database stats_dev --createdb --yes
+
+# Or deploy to an existing database
+pgpm deploy --database stats_dev --yes
+```
+
+pgpm will:
+1. Install required PostgreSQL extensions (btree_gist, citext, pgcrypto, plpgsql, uuid-ossp)
+2. Deploy the `github` schema
+3. Deploy the `npm` schema
+4. Track all changes in the `pgpm_migrate` schema
+
+### Verify the Deployment
+
+Verify that the deployment succeeded:
+
+```bash
+pgpm verify --database stats_dev
+```
+
+Or check the migration status:
+
+```bash
+pgpm migrate status --database stats_dev
+```
+
+### Rolling Back (Optional)
+
+If you need to revert all changes:
+
+```bash
+pgpm revert --database stats_dev
+```
+
+pgpm runs the revert scripts in reverse order, cleanly removing all changes.
 
 ## Run Application
 
@@ -89,10 +156,10 @@ You can use the following npm scripts to manage your database and run indexing c
 
 To index from scratch, follow these steps in order:
 
-1. Make sure you have run migrations and the database is up to date:
+1. Deploy the database module (if not already deployed):
 
    ```sh
-   ./scripts/schema.sh
+   pgpm deploy --database stats_dev --createdb --yes
    ```
 
 2. Fetch and index the data:
