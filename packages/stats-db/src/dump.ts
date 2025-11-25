@@ -106,8 +106,8 @@ async function dumpAndGzip(
     const isCI =
       process.env.CI === "true" || process.env.GITHUB_ACTIONS === "true";
     const dumpCommand = isCI
-      ? `PGPASSWORD=password pg_dump -h localhost -p 5432 -U postgres example_db > ${dumpFile}`
-      : `PGPASSWORD=password docker exec -i postgres pg_dump -U postgres example_db > ${dumpFile}`;
+      ? `PGPASSWORD=password pg_dump -h localhost -p 5432 -U postgres stats_dev > ${dumpFile}`
+      : `PGPASSWORD=password docker exec -i postgres pg_dump -U postgres stats_dev > ${dumpFile}`;
 
     console.log(
       `Running dump command (CI: ${isCI}): ${dumpCommand.replace("PGPASSWORD=password", "PGPASSWORD=***")}`

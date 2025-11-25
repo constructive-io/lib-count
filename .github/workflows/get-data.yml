@@ -33,8 +33,15 @@ jobs:
         with:
           node-version: "22"
 
+      - name: Enable corepack and pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@9 --activate
+          pnpm -v
+          node -v
+
       - name: Install dependencies
-        run: yarn install
+        run: pnpm install
 
       - name: Install PostgreSQL client tools
         run: |
@@ -48,6 +55,19 @@ jobs:
             pg_isready -h localhost -p 5432 -U postgres && break
             sleep 1
           done
+
+      - name: Install pgpm CLI globally
+        run: npm install -g pgpm@0.2.15
+
+      - name: Bootstrap database with pgpm
+        run: |
+          pgpm admin-users bootstrap --yes
+          pgpm admin-users add --test --yes
+        env:
+          PGHOST: localhost
+          PGPORT: 5432
+          PGUSER: postgres
+          PGPASSWORD: password
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -67,28 +87,35 @@ jobs:
       - name: Run it 🚀
         run: |
           echo "Building project..."
-          yarn build
+          pnpm build
 
-          echo "Setting up database schemas..."
+          echo "Deploying database schemas with pgpm..."
           cd ./packages/stats-db
-          ./scripts/schema.sh -s npm
-          ./scripts/schema.sh -s github
+          pgpm deploy --database stats_dev --createdb --yes
 
           echo "Fetching NPM data..."
-          yarn npm:fetch:packages
-          yarn npm:fetch:downloads
-          yarn npm:report
-          yarn npm:badges
-          yarn npm:readme
+          pnpm npm:fetch:packages
+          pnpm npm:fetch:downloads
+          pnpm npm:report
+          pnpm npm:badges
+          pnpm npm:readme
 
           echo "Fetching GitHub data..."
-          yarn gh:fetch
+          pnpm gh:fetch
 
           echo "Uploading database dump to S3..."
-          yarn db:dump:s3
+          pnpm db:dump:s3
         env:
+          # PostgreSQL Connection
+          PGHOST: localhost
+          PGPORT: 5432
+          PGUSER: postgres
+          PGPASSWORD: password
+          PGDATABASE: stats_dev
+          DATABASE_URL: postgres://postgres:password@localhost:5432/stats_dev
+
+          # GitHub Token
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DATABASE_URL: postgres://postgres:password@localhost:5432/example_db
 
           # AWS S3 Configuration
           AWS_REGION: us-east-1

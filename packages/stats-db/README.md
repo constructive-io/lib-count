@@ -78,54 +78,42 @@ pgpm deploy --database stats_dev --createdb --yes
 pgpm deploy --database stats_dev --yes
 ```
 
-pgpm will:
-1. Install required PostgreSQL extensions (btree_gist, citext, pgcrypto, plpgsql, uuid-ossp)
-2. Deploy the `github` schema
-3. Deploy the `npm` schema
-4. Track all changes in the `pgpm_migrate` schema
-
-## Run Application
-
-```sh
-yarn dev
-```
-
-## Data Indexing
-
-To improve query performance, you can run the following data indexing commands using npm scripts. These commands will create indexes on various tables to optimize search and retrieval operations.
-
-### Running Indexing Commands
-
-You can use the following npm scripts to manage your database and run indexing commands:
+### Running Commands
 
 - **Fetch Packages**: Fetch package data from npm.
 
   ```sh
-  yarn fetch:packages
+  pnpm npm:fetch:packages
   ```
 
 - **Fetch Downloads**: Fetch download statistics.
 
   ```sh
-  yarn fetch:downloads
-  ```
-
-- **Reset Downloads**: Reset download statistics.
-
-  ```sh
-  yarn fetch:downloads:reset
+  pnpm npm:fetch:downloads
   ```
 
 - **Generate Report**: Generate a report based on the fetched data.
 
   ```sh
-  yarn generate:report
+  pnpm npm:report
+  ```
+
+- **Generate Badges**: Generate badges for npm packages.
+
+  ```sh
+  pnpm npm:badges
+  ```
+
+- **Generate README**: Generate README files for npm packages.
+
+  ```sh
+  pnpm npm:readme
   ```
 
 - **Database Dump**: Create a dump of the current database state.
 
   ```sh
-  yarn db:dump
+  pnpm db:dump
   ```
 
 ### Initial Setup Order
@@ -141,13 +129,13 @@ To index from scratch, follow these steps in order:
 2. Fetch and index the data:
 
    ```sh
-   yarn npm:fetch:packages && yarn npm:fetch:downloads
+   pnpm npm:fetch:packages && pnpm npm:fetch:downloads
    ```
 
 3. Run reports/badges generation scripts:
 
    ```sh
-   yarn npm:report && yarn npm:badges && yarn npm:readme
+   pnpm npm:report && pnpm npm:badges && pnpm npm:readme
    ```
 
 # GitHub Analytics
