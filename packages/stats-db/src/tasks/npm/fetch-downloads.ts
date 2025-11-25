@@ -26,6 +26,15 @@ interface DateRange {
   end: Date;
 }
 
+function is429Error(error: unknown): boolean {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "status" in error &&
+    (error as any).status === 429
+  );
+}
+
 interface PackageInfo {
   packageName: string;
   creationDate: Date;
@@ -210,6 +219,14 @@ async function processPackageDownloads(
     } catch (error) {
       lastError = error;
 
+      // Immediately fail on 429 errors without retrying
+      if (is429Error(error)) {
+        console.error(
+          `[${current}/${total}] 🚨 RATE LIMIT (429) detected for ${packageName} - STOPPING ALL PROCESSING`
+        );
+        throw error;
+      }
+
       if (attempt < MAX_RETRIES) {
         const backoffDelay = INITIAL_RETRY_DELAY * Math.pow(2, attempt - 1);
         console.error(
@@ -236,30 +253,32 @@ async function processBatch(
   startIndex: number,
   total: number
 ): Promise<void> {
-  const results = await Promise.allSettled(
-    packages.map((pkg, index) =>
-      (async () => {
-        await delay(index * RATE_LIMIT_DELAY); // Stagger the requests
-        return processPackageDownloads(
-          db,
-          pkg.packageName,
-          pkg.creationDate,
-          startIndex + index + 1,
-          total
-        );
-      })()
-    )
-  );
+  try {
+    // Use Promise.all instead of allSettled so we fail fast on any error
+    await Promise.all(
+      packages.map((pkg, index) =>
+        (async () => {
+          await delay(index * RATE_LIMIT_DELAY); // Stagger the requests
+          return processPackageDownloads(
+            db,
+            pkg.packageName,
+            pkg.creationDate,
+            startIndex + index + 1,
+            total
+          );
+        })()
+      )
+    );
+  } catch (error) {
+    // If it's a 429 error, immediately propagate it to stop all processing
+    if (is429Error(error)) {
+      console.error(`\n🚨 RATE LIMIT (429) ERROR - STOPPING ALL PROCESSING IMMEDIATELY`);
+      throw error;
+    }
 
-  // Log any failures in the batch
-  const failures = results.filter(
-    (r): r is PromiseRejectedResult => r.status === "rejected"
-  );
-  if (failures.length > 0) {
-    console.error(`\n${failures.length} package(s) failed in this batch:`);
-    failures.forEach((failure) => {
-      console.error(`  - ${failure.reason}`);
-    });
+    // For other errors, log but don't stop the entire process
+    console.error(`\nBatch processing error:`, error);
+    throw error;
   }
 }
 
@@ -324,6 +343,16 @@ async function run(shouldResetDb: boolean = false): Promise<void> {
         await processBatch(db, batch, i, totalPackages);
         successCount += batch.length;
       } catch (error) {
+        // If it's a 429 error, stop all processing immediately
+        if (is429Error(error)) {
+          console.error(
+            `\n🚨 RATE LIMIT (429) ERROR DETECTED - TERMINATING PROCESS\n` +
+            `Processed: ${successCount} successful, ${failureCount} failed\n` +
+            `Stopping to avoid further rate limit violations.`
+          );
+          throw error;
+        }
+
         failureCount += batch.length;
         console.error(`Batch processing error:`, error);
       }
@@ -337,7 +366,17 @@ async function run(shouldResetDb: boolean = false): Promise<void> {
     );
   } catch (error) {
     const duration = ((Date.now() - scriptStartTime) / 1000).toFixed(2);
-    console.error(`Script error after ${duration} seconds:`, error);
+
+    // Handle 429 errors specially
+    if (is429Error(error)) {
+      console.error(
+        `\n🚨 Script terminated after ${duration} seconds due to rate limiting (429)\n` +
+        `Please wait before retrying to avoid further rate limit violations.`
+      );
+    } else {
+      console.error(`Script error after ${duration} seconds:`, error);
+    }
+
     throw error;
   }
 }
@@ -353,7 +392,13 @@ export function execute(options: FetchDownloadsOptions = {}): Promise<void> {
       process.exit(0);
     })
     .catch((error) => {
-      console.error(`Script failed:`, error);
-      process.exit(1);
+      // Exit with special code for rate limiting
+      if (is429Error(error)) {
+        console.error(`\n🚨 Script failed due to rate limiting (429)`);
+        process.exit(2); // Exit code 2 for rate limiting
+      } else {
+        console.error(`Script failed:`, error);
+        process.exit(1);
+      }
     });
 }
