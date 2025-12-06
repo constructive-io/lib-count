@@ -1,5 +1,5 @@
 
-# Hyperweb
+# Interweb, Inc.
 
 <p align="center" width="100%">
    <img src="https://raw.githubusercontent.com/hyperweb-io/lib-count/refs/heads/main/assets/logo.svg" alt="hyperweb" width="80"><br />
@@ -25,7 +25,7 @@
 </p>
 
 
-## 🚀 Interweb, Inc.
+## 🚀 Brands of Interweb, Inc.
 
 ### Hyperweb
 
@@ -41,7 +41,93 @@ We're thrilled to share that [**Cosmology** has rebranded as **Hyperweb**](https
 - 🔗 **LaunchQL GitHub Organization:** [**launchql**](https://github.com/launchql)
 - 🌐 **LaunchQL Website:** [**launchql.com**](https://launchql.com)
 
+### PGPM
 
+- 🌐 **PGPM Website:** [**pgpm.io**](https://pgpm.io)
+
+
+## Overall Download Statistics
+
+| Category | Total | Monthly | Weekly |
+| ------- | ------ | ------- | ----- |
+| **Total** | 90,710,173 | 3,630,311 | 935,627 |
+| Web2 | 32,823,319 | 1,853,790 | 463,149 |
+| Web3 | 54,753,862 | 1,567,716 | 415,163 |
+| Utilities | 3,979,238 | 208,805 | 57,315 |
+
+
+---
+
+# Modular Postgres Stack
+
+Modular PostgreSQL tooling for full-stack TypeScript development.
+
+| [Modular Postgres Portal](https://launchql.com): Quick Start | [PGPM](https://pgpm.io/): Postgres Package Manager | 
+|:---:|:---:|
+
+Modular PostgreSQL development with pgpm workspaces, reusable database modules, and end-to-end TypeScript testing 🐘
+
+## Education and Tutorials
+
+ 1. 🚀 [Quickstart: Getting Up and Running](https://launchql.com/learn/quickstart)
+Get started with modular databases in minutes. Install prerequisites and deploy your first module.
+
+ 2. 📦 [Modular PostgreSQL Development with Database Packages](https://launchql.com/learn/modular-postgres)
+Learn to organize PostgreSQL projects with pgpm workspaces and reusable database modules.
+
+ 3. ✏️ [Authoring Database Changes](https://launchql.com/learn/authoring-database-changes)
+Master the workflow for adding, organizing, and managing database changes with pgpm.
+
+ 4. 🧪 [End-to-End PostgreSQL Testing with TypeScript](https://launchql.com/learn/e2e-postgres-testing)
+Master end-to-end PostgreSQL testing with ephemeral databases, RLS testing, and CI/CD automation.
+
+ 5. ⚡ [Supabase Testing](https://launchql.com/learn/supabase)
+Use TypeScript-first tools to test Supabase projects with realistic RLS, policies, and auth contexts.
+
+ 6. 💧 [Drizzle ORM Testing](https://launchql.com/learn/drizzle-testing)
+Run full-stack tests with Drizzle ORM, including database setup, teardown, and RLS enforcement.
+
+ 7. 🔧 [Troubleshooting](https://launchql.com/learn/troubleshooting)
+Common issues and solutions for pgpm, PostgreSQL, and testing.
+
+### 🧪 Testing
+
+* [launchql/pgsql-test](https://github.com/launchql/launchql/tree/main/packages/pgsql-test): **📊 Isolated testing environments** with per-test transaction rollbacks—ideal for integration tests, complex migrations, and RLS simulation.
+* [launchql/supabase-test](https://github.com/launchql/launchql/tree/main/packages/supabase-test): **🧪 Supabase-native test harness** preconfigured for the local Supabase stack—per-test rollbacks, JWT/role context helpers, and CI/GitHub Actions ready.
+* [launchql/graphile-test](https://github.com/launchql/launchql/tree/main/packages/graphile-test): **🔐 Authentication mocking** for Graphile-focused test helpers and emulating row-level security contexts.
+* [launchql/pg-query-context](https://github.com/launchql/launchql/tree/main/packages/pg-query-context): **🔒 Session context injection** to add session-local context (e.g., `SET LOCAL`) into queries—ideal for setting `role`, `jwt.claims`, and other session settings.
+
+### 🧠 Parsing & AST
+
+* [launchql/pgsql-parser](https://github.com/launchql/pgsql-parser): **🔄 SQL conversion engine** that interprets and converts PostgreSQL syntax.
+* [launchql/libpg-query-node](https://github.com/launchql/libpg-query-node): **🌉 Node.js bindings** for `libpg_query`, converting SQL into parse trees.
+* [launchql/pg-proto-parser](https://github.com/launchql/pg-proto-parser): **📦 Protobuf parser** for parsing PostgreSQL Protocol Buffers definitions to generate TypeScript interfaces, utility functions, and JSON mappings for enums.
+* [@pgsql/enums](https://github.com/launchql/pgsql-parser/tree/main/packages/enums): **🏷️ TypeScript enums** for PostgreSQL AST for safe and ergonomic parsing logic.
+* [@pgsql/types](https://github.com/launchql/pgsql-parser/tree/main/packages/types): **📝 Type definitions** for PostgreSQL AST nodes in TypeScript.
+* [@pgsql/utils](https://github.com/launchql/pgsql-parser/tree/main/packages/utils): **🛠️ AST utilities** for constructing and transforming PostgreSQL syntax trees.
+* [launchql/pg-ast](https://github.com/launchql/launchql/tree/main/packages/pg-ast): **🔍 Low-level AST tools** and transformations for Postgres query structures.
+
+### 🚀 API & Dev Tools
+
+* [launchql/server](https://github.com/launchql/launchql/tree/main/packages/server): **⚡ Express-based API server** powered by PostGraphile to expose a secure, scalable GraphQL API over your Postgres database.
+* [launchql/explorer](https://github.com/launchql/launchql/tree/main/packages/explorer): **🔎 Visual API explorer** with GraphiQL for browsing across all databases and schemas—useful for debugging, documentation, and API prototyping.
+
+### 🔁 Streaming & Uploads
+
+* [launchql/s3-streamer](https://github.com/launchql/launchql/tree/main/packages/s3-streamer): **📤 Direct S3 streaming** for large files with support for metadata injection and content validation.
+* [launchql/etag-hash](https://github.com/launchql/launchql/tree/main/packages/etag-hash): **🏷️ S3-compatible ETags** created by streaming and hashing file uploads in chunks.
+* [launchql/etag-stream](https://github.com/launchql/launchql/tree/main/packages/etag-stream): **🔄 ETag computation** via Node stream transformer during upload or transfer.
+* [launchql/uuid-hash](https://github.com/launchql/launchql/tree/main/packages/uuid-hash): **🆔 Deterministic UUIDs** generated from hashed content, great for deduplication and asset referencing.
+* [launchql/uuid-stream](https://github.com/launchql/launchql/tree/main/packages/uuid-stream): **🌊 Streaming UUID generation** based on piped file content—ideal for upload pipelines.
+* [launchql/upload-names](https://github.com/launchql/launchql/tree/main/packages/upload-names): **📂 Collision-resistant filenames** utility for structured and unique file names for uploads.
+
+### 🧰 CLI & Codegen
+
+* [pgpm](https://github.com/launchql/launchql/tree/main/packages/pgpm): **🖥️ PostgreSQL Package Manager** for modular Postgres development. Works with database workspaces, scaffolding, migrations, seeding, and installing database packages.
+* [@launchql/cli](https://github.com/launchql/launchql/tree/main/packages/cli): **🖥️ Command-line toolkit** for managing LaunchQL projects—supports database scaffolding, migrations, seeding, code generation, and automation.
+* [launchql/launchql-gen](https://github.com/launchql/launchql/tree/main/packages/launchql-gen): **✨ Auto-generated GraphQL** mutations and queries dynamically built from introspected schema data.
+* [@launchql/query-builder](https://github.com/launchql/launchql/tree/main/packages/query-builder): **🏗️ SQL constructor** providing a robust TypeScript-based query builder for dynamic generation of `SELECT`, `INSERT`, `UPDATE`, `DELETE`, and stored procedure calls—supports advanced SQL features like `JOIN`, `GROUP BY`, and schema-qualified queries.
+* [@launchql/query](https://github.com/launchql/launchql/tree/main/packages/query): **🧩 Fluent GraphQL builder** for PostGraphile schemas. ⚡ Schema-aware via introspection, 🧩 composable and ergonomic for building deeply nested queries.
 ---
 
 # Interchain JavaScript Stack
@@ -52,6 +138,7 @@ A unified toolkit for building applications and smart contracts in the Interchai
 |:---:|:---:|:---:|
 
 A unified toolkit for building applications and smart contracts in the Interchain ecosystem ⚛️
+
 
 | Category             | Tools                                                                                                                  | Downloads                                                                                                 |
 |----------------------|------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------|
@@ -64,15 +151,6 @@ A unified toolkit for building applications and smart contracts in the Interchai
 | **Testing Frameworks**          | [**Starship**](https://github.com/hyperweb-io/starship)                                                             | ![Testing](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fhyperweb-io%2Flib-count%2Fmain%2Fbadges%2Fproducts%2Fstarship%2Ftotal.json) |
 | **TypeScript Smart Contracts** | [**Create Hyperweb App**](https://github.com/hyperweb-io/create-hyperweb-app)                              | ![TypeScript Smart Contracts](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fhyperweb-io%2Flib-count%2Fmain%2Fbadges%2Fproducts%2Fhyperwebjs%2Ftotal.json) |
 | **CosmWasm Contracts** | [**CosmWasm TS Codegen**](https://github.com/CosmWasm/ts-codegen)                                                   | ![CosmWasm Contracts](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fhyperweb-io%2Flib-count%2Fmain%2Fbadges%2Fproducts%2Fcosmwasm%2Ftotal.json) |
-## Overall Download Statistics
-
-| Category | Total | Monthly | Weekly |
-| ------- | ------ | ------- | ----- |
-| **Total** | 90,710,173 | 3,630,311 | 935,627 |
-| Web2 | 32,823,319 | 1,853,790 | 463,149 |
-| Web3 | 54,753,862 | 1,567,716 | 415,163 |
-| Utilities | 3,979,238 | 208,805 | 57,315 |
-
 ## Table of Contents
 
 - [launchql](#launchql)
@@ -964,6 +1042,7 @@ A unified toolkit for building applications and smart contracts in the Interchai
 <img width="400px" src="https://github.com/user-attachments/assets/9d34000e-56ff-4e83-8e4d-612bc79712f4" />
 </a>
 
+
 ---
 
 ## What Does This Rebrand Mean?
@@ -973,6 +1052,7 @@ Hyperweb represents the evolution of Cosmology's mission, focusing on accessibil
 
 ### 🤝 **Same Great Tools, New Identity**
 All the tools and projects you know and love from Cosmology are now part of the Hyperweb ecosystem. Expect the same commitment to open-source collaboration with a fresh perspective.
+
 
 ---
 
@@ -987,6 +1067,7 @@ All the tools and projects you know and love from Cosmology are now part of the 
 3. **Join the Movement**
    Be part of the Hyperweb community and help us shape the future of decentralized technology.
 
+
 ---
 
 ### Thank You 💖
@@ -996,4 +1077,5 @@ To the amazing Cosmology community: thank you for being part of our journey. Wit
 Let's build the future, together. 🚀
 
 
-<!-- README.md automatically generated on 2025-12-06T07:05:43.875Z from lib-count repository with latest download stats -->
+
+<!-- README.md automatically generated on 2025-12-06T07:25:59.309Z from lib-count repository with latest download stats -->

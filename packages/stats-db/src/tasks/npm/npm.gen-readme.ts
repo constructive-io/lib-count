@@ -15,6 +15,12 @@ function formatNumber(num: number): string {
   return num.toLocaleString();
 }
 
+const SNIPPETS_DIR = path.resolve(__dirname, "../readme-snippets");
+
+function readSnippet(filename: string): string {
+  return fs.readFileSync(path.join(SNIPPETS_DIR, filename), "utf-8");
+}
+
 async function getPackageStats(
   dbClient: PoolClient,
   packageName: string
@@ -310,42 +316,6 @@ function generateBadgesSection(repoName: string): string {
 `; // Ensured two newlines at the end to create a blank line before the next section
 }
 
-function generateIntroSection(): string {
-  return `
-## 🚀 Interweb, Inc.
-
-### Hyperweb
-
-We\'re thrilled to share that [**Cosmology** has rebranded as **Hyperweb**](https://hyperweb.io/blog/01-28-2025-journey-from-cosmology-to-hyperweb)! 🎉
-
-- 🔗 **Hyperweb GitHub Organization:** [**hyperweb-io**](https://github.com/hyperweb-io)
-- 🌐 **Hyperweb Website:** [**hyperweb.io**](https://hyperweb.io)
-
-📺 **Watch the [Hyperweb Announcement](https://www.youtube.com/watch?v=a_G2_KXRf1Y&list=PL_XyHnlG9MMvekTCbbJArAOwVlkCY54V5&index=2)**  
-
-### LaunchQL
-
-- 🔗 **LaunchQL GitHub Organization:** [**launchql**](https://github.com/launchql)
-- 🌐 **LaunchQL Website:** [**launchql.com**](https://launchql.com)
-
-`; // Ensured two newlines for a blank line before the --- separator
-}
-
-function generateStackIntro(): string {
-  return `
----
-
-# Interchain JavaScript Stack
-
-A unified toolkit for building applications and smart contracts in the Interchain ecosystem with JavaScript.
-
-| [Developer Portal](https://hyperweb.io): Quick Start | [Interweb Discord](https://discord.com/invite/xh3ZwHj2qQ): Support & Community | [GitHub Discussions](https://github.com/orgs/hyperweb-io/discussions): Technical Hub |
-|:---:|:---:|:---:|
-
-A unified toolkit for building applications and smart contracts in the Interchain ecosystem ⚛️
-`;
-}
-
 function generateToolsTable(
   repoName: string,
   categoryPackageStats: Map<string, CategoryStats>
@@ -372,6 +342,32 @@ function generateToolsTable(
 | **TypeScript Smart Contracts** | [**Create Hyperweb App**](https://github.com/hyperweb-io/create-hyperweb-app)                              | ![TypeScript Smart Contracts](${productBadgeUrl("hyperwebjs")}) |
 | **CosmWasm Contracts** | [**CosmWasm TS Codegen**](https://github.com/CosmWasm/ts-codegen)                                                   | ![CosmWasm Contracts](${productBadgeUrl("cosmwasm")}) |
 `;
+}
+
+function getSortedVisibleCategories(): string[] {
+  const visibleCategories = Object.keys(packages).filter(
+    (key) => !readmeHiddenCategories.includes(key)
+  );
+  return visibleCategories.sort((a, b) => {
+    const aIndex = readmeCategoryOrder.indexOf(a);
+    const bIndex = readmeCategoryOrder.indexOf(b);
+    if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
+    if (aIndex !== -1) return -1;
+    if (bIndex !== -1) return 1;
+    return a.localeCompare(b);
+  });
+}
+
+function generateCategorySections(categoryStatsMap: Map<string, CategoryStats>): string {
+  const categoryKeys = getSortedVisibleCategories();
+  let content = generateToc(categoryKeys);
+  for (const categoryName of categoryKeys) {
+    const categoryData = categoryStatsMap.get(categoryName);
+    if (categoryData) {
+      content += generateCategoryTableSection(categoryName, categoryData);
+    }
+  }
+  return content;
 }
 
 function generateToc(packageCategories: string[]): string {
@@ -417,70 +413,13 @@ function generateCategoryTableSection(
   return lines.join("\n") + "\n\n";
 }
 
-function generateStackAnnouncement(): string {
-  return `
----
-
-# Interchain JavaScript Stack Announcement
-
-🎥 Watch the [Interchain JS presentation](https://www.youtube.com/watch?v=locvOlLDoVY&list=PL_XyHnlG9MMvekTCbbJArAOwVlkCY54V5&index=1).
-
-<a href="https://www.youtube.com/watch?v=locvOlLDoVY&list=PL_XyHnlG9MMvekTCbbJArAOwVlkCY54V5&index=1">
-<img width="400px" src="https://github.com/user-attachments/assets/9d34000e-56ff-4e83-8e4d-612bc79712f4" />
-</a>
-`;
-}
-
-function generateRebrandInfo(): string {
-  return `
----
-
-## What Does This Rebrand Mean?
-
-### 🌟 **A Unified Vision**
-Hyperweb represents the evolution of Cosmology\'s mission, focusing on accessibility, innovation, and empowering cross-chain development for everyone.
-
-### 🤝 **Same Great Tools, New Identity**
-All the tools and projects you know and love from Cosmology are now part of the Hyperweb ecosystem. Expect the same commitment to open-source collaboration with a fresh perspective.
-`;
-}
-
-function generateWhatsNext(): string {
-  return `
----
-
-## What\'s Next?
-
-1. **Explore Hyperweb**
-   Visit [**hyperweb-io on GitHub**](https://github.com/hyperweb-io) to find all the tools, repositories, and resources under the new brand.
-
-2. **Follow Our Growth**
-   Stay tuned as we continue to innovate and expand the possibilities of cross-chain development with Hyperweb.
-
-3. **Join the Movement**
-   Be part of the Hyperweb community and help us shape the future of decentralized technology.
-`;
-}
-
-function generateThankYou(): string {
-  return `
----
-
-### Thank You 💖
-
-To the amazing Cosmology community: thank you for being part of our journey. With Hyperweb, we\'re taking everything you love to the next level—and we\'re thrilled to have you with us.
-
-Let's build the future, together. 🚀
-`;
-}
-
 function generateTimestampComment(repoBaseName: string): string {
   return `\n\n<!-- README.md automatically generated on ${new Date().toISOString()} from ${repoBaseName} repository with latest download stats -->\n`;
 }
 
 export async function generateReadmeNew(): Promise<string> {
   const db = new Database();
-  let readmeContent = "# Hyperweb\n";
+  let readmeContent = "# Interweb, Inc.\n";
   let repoName = "hyperweb-io/hyperweb-statistics";
   let repoBaseName = "hyperweb-statistics";
 
@@ -582,44 +521,17 @@ export async function generateReadmeNew(): Promise<string> {
 
   // Assemble README sections
   readmeContent += generateBadgesSection(repoName);
-  readmeContent += generateIntroSection();
-  readmeContent += generateStackIntro();
-  readmeContent += generateToolsTable(repoName, categoryStatsMap);
+  readmeContent += readSnippet("intro.md");
   readmeContent += generateOverallStatsTable(totals);
-
-  // Generate and add Table of Contents
-  // Filter out hidden categories (they're still counted in totals)
-  // Sort by readmeCategoryOrder preference, then alphabetically for unlisted
-  const visibleCategories = Object.keys(packages).filter(
-    (key) => !readmeHiddenCategories.includes(key)
-  );
-  const categoryKeys = visibleCategories.sort((a, b) => {
-    const aIndex = readmeCategoryOrder.indexOf(a);
-    const bIndex = readmeCategoryOrder.indexOf(b);
-    // Both in order list: sort by position
-    if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
-    // Only a in list: a comes first
-    if (aIndex !== -1) return -1;
-    // Only b in list: b comes first
-    if (bIndex !== -1) return 1;
-    // Neither in list: alphabetical
-    return a.localeCompare(b);
-  });
-  readmeContent += generateToc(categoryKeys);
-
-  // Add individual category tables
-  for (const categoryName of categoryKeys) {
-    // Use the same keys for order consistency
-    const categoryData = categoryStatsMap.get(categoryName);
-    if (categoryData) {
-      readmeContent += generateCategoryTableSection(categoryName, categoryData);
-    }
-  }
-
-  readmeContent += generateStackAnnouncement();
-  readmeContent += generateRebrandInfo();
-  readmeContent += generateWhatsNext();
-  readmeContent += generateThankYou();
+  readmeContent += readSnippet("database-stack-intro.md");
+  readmeContent += readSnippet("database-tooling.md");
+  readmeContent += readSnippet("interchain-stack-intro.md");
+  readmeContent += generateToolsTable(repoName, categoryStatsMap);
+  readmeContent += generateCategorySections(categoryStatsMap);
+  readmeContent += readSnippet("stack-announcement.md");
+  readmeContent += readSnippet("rebrand-info.md");
+  readmeContent += readSnippet("whats-next.md");
+  readmeContent += readSnippet("thank-you.md");
   readmeContent += generateTimestampComment(repoBaseName);
 
   return "\n" + readmeContent;
