@@ -30,6 +30,8 @@
     "npm:report": "ts-node ./src/tasks/npm/npm.tasks.ts generate:report",
     "npm:badges": "ts-node ./src/tasks/npm/npm.tasks.ts generate:badges",
     "npm:readme": "ts-node ./src/tasks/npm/npm.tasks.ts generate:readme",
+    "npm:categories:list-misc": "ts-node ./src/tasks/npm/npm.tasks.ts categories:list-misc",
+    "npm:categories:sync": "ts-node ./src/tasks/npm/npm.tasks.ts categories:sync",
     "gh:fetch": "ts-node src/tasks/github/github.tasks.ts fetch",
     "gh:report": "ts-node src/tasks/github/github.tasks.ts report",
     "gh:export": "ts-node src/tasks/github/github.tasks.ts export",

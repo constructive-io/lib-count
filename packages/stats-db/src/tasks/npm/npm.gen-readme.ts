@@ -2,7 +2,7 @@ import { Database } from "@cosmology/db-client";
 import { PoolClient } from "pg";
 import * as fs from "fs";
 import * as path from "path";
-import { packages } from "./data-config";
+import { packages } from "../../config";
 import {
   DownloadStats,
   PackageStats,

@@ -1,3 +1,28 @@
+# stats-db
+
+Database utilities for tracking npm package download statistics and GitHub repository metrics.
+
+## Table of Contents
+
+- [Database Schema Management](#database-schema-management)
+  - [Prerequisites](#prerequisites)
+  - [Start PostgreSQL (Docker)](#start-postgresql-docker)
+  - [Set Environment Variables](#set-environment-variables)
+  - [Bootstrap Database Users](#bootstrap-database-users)
+  - [Deploy the Database Module](#deploy-the-database-module)
+  - [Load the data from before!](#load-the-data-from-before)
+- [Running Commands](#running-commands)
+  - [Command Options](#command-options)
+  - [Understanding Fetch Modes](#understanding-fetch-modes)
+- [Managing Package Categories](#managing-package-categories)
+  - [Category Configuration File](#category-configuration-file)
+  - [Listing Uncategorized Packages](#listing-uncategorized-packages)
+  - [Syncing Categories to Database](#syncing-categories-to-database)
+  - [Workflow for Categorizing Packages](#workflow-for-categorizing-packages)
+- [Initial Setup Order](#initial-setup-order)
+
+---
+
 ## Database Schema Management
 
 ### Prerequisites
@@ -93,7 +118,7 @@ Now export `DATABASE_URL`:
 export DATABASE_URL=postgres://postgres:password@localhost:5432/stats_dev
 ```
 
-### Running Commands
+## Running Commands
 
 - **Fetch Packages**: Fetch package data from npm.
 
@@ -125,29 +150,29 @@ export DATABASE_URL=postgres://postgres:password@localhost:5432/stats_dev
   # Or using short flag: -b
   ```
 
-  #### Command Options
+### Command Options
 
-  | Option | Short | Description |
-  |--------|-------|-------------|
-  | `--concurrent` | `-c` | Number of concurrent package downloads (default: 50) |
-  | `--delay` | `-d` | Delay between requests in milliseconds (default: 200) |
-  | `--chunk-size` | `-s` | Number of days per chunk (default: 30) |
-  | `--backfill` | `-b` | Force scan ALL active packages for gaps |
+| Option | Short | Description |
+|--------|-------|-------------|
+| `--concurrent` | `-c` | Number of concurrent package downloads (default: 50) |
+| `--delay` | `-d` | Delay between requests in milliseconds (default: 200) |
+| `--chunk-size` | `-s` | Number of days per chunk (default: 30) |
+| `--backfill` | `-b` | Force scan ALL active packages for gaps |
 
-  #### Understanding Fetch Modes
+### Understanding Fetch Modes
 
-  **Normal mode** (default): Only processes packages where `last_fetched_date < TODAY`. This is efficient for daily updates but may miss gaps if a previous fetch was interrupted.
+**Normal mode** (default): Only processes packages where `last_fetched_date < TODAY`. This is efficient for daily updates but may miss gaps if a previous fetch was interrupted.
 
-  **Backfill mode** (`--backfill`): Scans ALL active packages regardless of `last_fetched_date`. For each package, it:
-  1. Retrieves all existing download dates from the database
-  2. Compares against the expected date range (creation date → today)
-  3. Identifies and fetches only the missing dates (gaps)
-  4. Updates `last_fetched_date` after successful completion
+**Backfill mode** (`--backfill`): Scans ALL active packages regardless of `last_fetched_date`. For each package, it:
+1. Retrieves all existing download dates from the database
+2. Compares against the expected date range (creation date → today)
+3. Identifies and fetches only the missing dates (gaps)
+4. Updates `last_fetched_date` after successful completion
 
-  Use backfill mode when:
-  - You suspect there are gaps in historical data
-  - A previous fetch was interrupted by rate limiting (429 errors)
-  - You want to verify data completeness for all packages
+Use backfill mode when:
+- You suspect there are gaps in historical data
+- A previous fetch was interrupted by rate limiting (429 errors)
+- You want to verify data completeness for all packages
 
 
 - **Generate Report**: Generate a report based on the fetched data.
@@ -174,7 +199,84 @@ export DATABASE_URL=postgres://postgres:password@localhost:5432/stats_dev
   pnpm db:dump
   ```
 
-### Initial Setup Order
+## Managing Package Categories
+
+Packages are organized into categories for reporting and statistics. The category definitions live in `src/config/categories.ts`.
+
+### Category Configuration File
+
+The `src/config/categories.ts` file contains:
+
+- **`packages`**: An object mapping category names to arrays of package names
+- **`blacklistConfig`**: Namespaces and packages to exclude from tracking
+
+```typescript
+// Example structure
+export const packages: Packages = {
+  "cosmos-kit": [
+    "cosmos-kit",
+    "@cosmos-kit/core",
+    "@cosmos-kit/react",
+    // ...
+  ],
+  telescope: [
+    "@cosmology/telescope",
+    "@osmonauts/telescope",
+    // ...
+  ],
+  // ... more categories
+};
+```
+
+### Listing Uncategorized Packages
+
+Packages that aren't assigned to a specific category end up in "misc". To see what needs categorization:
+
+```sh
+pnpm npm:categories:list-misc
+```
+
+This outputs:
+- A table of uncategorized packages sorted by download count
+- A copyable list format for adding to the config file
+
+### Syncing Categories to Database
+
+After editing `src/config/categories.ts`, sync the changes to the database:
+
+```sh
+pnpm npm:categories:sync
+```
+
+This will:
+1. Create any new categories that don't exist in the database
+2. Clear all existing package-category associations
+3. Re-apply categories based on the config file
+4. Assign any remaining packages to "misc"
+5. Apply the blacklist (deactivate blacklisted packages)
+
+### Workflow for Categorizing Packages
+
+1. **List uncategorized packages:**
+   ```sh
+   pnpm npm:categories:list-misc
+   ```
+
+2. **Edit the config file** (`src/config/categories.ts`):
+   - Add packages to existing categories, or
+   - Create new categories as needed
+
+3. **Sync to database:**
+   ```sh
+   pnpm npm:categories:sync
+   ```
+
+4. **Regenerate reports** to reflect the changes:
+   ```sh
+   pnpm npm:report && pnpm npm:readme
+   ```
+
+## Initial Setup Order
 
 To index from scratch, follow these steps in order:
 

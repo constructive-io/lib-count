@@ -3,7 +3,7 @@ import { PoolClient } from "pg";
 import { NPMRegistryClient } from "../../npm-client";
 import { insertPackage } from "./npm.queries";
 import { delay } from "../../utils";
-import { packages, blacklistConfig } from "./data-config";
+import { packages, blacklistConfig } from "../../config";
 
 const npmClient = new NPMRegistryClient({
   restEndpoint: "https://registry.npmjs.org",

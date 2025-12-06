@@ -1,6 +1,6 @@
 import { Database } from "@cosmology/db-client";
 import { PoolClient } from "pg";
-import { packages } from "./data-config";
+import { packages } from "../../config";
 import * as fs from "fs";
 import * as path from "path";
 import {
