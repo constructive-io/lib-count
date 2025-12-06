@@ -358,10 +358,26 @@ function getSortedVisibleCategories(): string[] {
   });
 }
 
+const MIN_DOWNLOADS_THRESHOLD = 1000;
+
+function categoryHasVisiblePackages(categoryData: CategoryStats): boolean {
+  if (!categoryData.packages || categoryData.packages.length === 0) {
+    return false;
+  }
+  return categoryData.packages.some((pkg) => pkg.total >= MIN_DOWNLOADS_THRESHOLD);
+}
+
 function generateCategorySections(categoryStatsMap: Map<string, CategoryStats>): string {
   const categoryKeys = getSortedVisibleCategories();
-  let content = generateToc(categoryKeys);
-  for (const categoryName of categoryKeys) {
+
+  // Filter to only categories with at least one visible package
+  const visibleCategoryKeys = categoryKeys.filter((categoryName) => {
+    const categoryData = categoryStatsMap.get(categoryName);
+    return categoryData && categoryHasVisiblePackages(categoryData);
+  });
+
+  let content = generateToc(visibleCategoryKeys);
+  for (const categoryName of visibleCategoryKeys) {
     const categoryData = categoryStatsMap.get(categoryName);
     if (categoryData) {
       content += generateCategoryTableSection(categoryName, categoryData);
@@ -403,13 +419,23 @@ function generateCategoryTableSection(
     `| _Total_ | ${formatNumber(categoryData.total)} | ${formatNumber(categoryData.monthly)} | ${formatNumber(categoryData.weekly)} |`
   );
 
+  let hiddenCount = 0;
   if (categoryData.packages && categoryData.packages.length > 0) {
     categoryData.packages.forEach((pkg) => {
-      lines.push(
-        `| [${pkg.name}](https://www.npmjs.com/package/${pkg.name}) | ${formatNumber(pkg.total)} | ${formatNumber(pkg.monthly)} | ${formatNumber(pkg.weekly)} |`
-      );
+      if (pkg.total >= MIN_DOWNLOADS_THRESHOLD) {
+        lines.push(
+          `| [${pkg.name}](https://www.npmjs.com/package/${pkg.name}) | ${formatNumber(pkg.total)} | ${formatNumber(pkg.monthly)} | ${formatNumber(pkg.weekly)} |`
+        );
+      } else {
+        hiddenCount++;
+      }
     });
   }
+
+  if (hiddenCount > 0) {
+    lines.push(`| *${hiddenCount} package${hiddenCount > 1 ? 's' : ''} hidden (< ${formatNumber(MIN_DOWNLOADS_THRESHOLD)} downloads)* | | | |`);
+  }
+
   return lines.join("\n") + "\n\n";
 }
 

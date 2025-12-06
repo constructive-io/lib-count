@@ -6,6 +6,7 @@
 // They are still counted in totals, just not displayed
 export const readmeHiddenCategories: string[] = [
   "misc",
+  "quicksilver",
   "math",
   "boilerplates",
 ];
@@ -26,7 +27,6 @@ export const readmeCategoryOrder: string[] = [
   "interchain-kit",
   "interchain-kit-wallets",
   "interchain-ui",
-  "quicksilver",
   "osmosis",
   "starship",
   "cosmology",

@@ -167,7 +167,6 @@ A unified toolkit for building applications and smart contracts in the Interchai
 - [interchain-kit](#interchain-kit)
 - [interchain-kit-wallets](#interchain-kit-wallets)
 - [interchain-ui](#interchain-ui)
-- [quicksilver](#quicksilver)
 - [osmosis](#osmosis)
 - [starship](#starship)
 - [cosmology](#cosmology)
@@ -315,62 +314,7 @@ A unified toolkit for building applications and smart contracts in the Interchai
 | [graphile-postgis](https://www.npmjs.com/package/graphile-postgis) | 1,050 | 334 | 129 |
 | [drizzle-orm-test](https://www.npmjs.com/package/drizzle-orm-test) | 1,039 | 1,039 | 100 |
 | [@launchql/ext-status](https://www.npmjs.com/package/@launchql/ext-status) | 1,029 | 55 | 3 |
-| [@launchql/pg-query-context](https://www.npmjs.com/package/@launchql/pg-query-context) | 980 | 98 | 5 |
-| [skitch-ext-jobs](https://www.npmjs.com/package/skitch-ext-jobs) | 886 | 3 | 0 |
-| [@launchql/openfaas-job-req](https://www.npmjs.com/package/@launchql/openfaas-job-req) | 873 | 50 | 1 |
-| [@launchql/mjml](https://www.npmjs.com/package/@launchql/mjml) | 820 | 49 | 2 |
-| [skitch-extension-utilities](https://www.npmjs.com/package/skitch-extension-utilities) | 775 | 9 | 0 |
-| [launchql-react](https://www.npmjs.com/package/launchql-react) | 761 | 8 | 0 |
-| [@launchql/ast-deparser](https://www.npmjs.com/package/@launchql/ast-deparser) | 755 | 75 | 1 |
-| [@launchql/styled-email](https://www.npmjs.com/package/@launchql/styled-email) | 601 | 40 | 0 |
-| [@lql-pg/verify](https://www.npmjs.com/package/@lql-pg/verify) | 592 | 592 | 2 |
-| [@launchql/openfaas-job-example](https://www.npmjs.com/package/@launchql/openfaas-job-example) | 545 | 42 | 1 |
-| [@pgsql/protobufjs-cli](https://www.npmjs.com/package/@pgsql/protobufjs-cli) | 534 | 6 | 3 |
-| [launchql-extension-jobs](https://www.npmjs.com/package/launchql-extension-jobs) | 510 | 9 | 3 |
-| [launchql-extension-utils](https://www.npmjs.com/package/launchql-extension-utils) | 470 | 3 | 0 |
-| [launchql-extension-defaults](https://www.npmjs.com/package/launchql-extension-defaults) | 468 | 3 | 0 |
-| [launchql-extension-default-roles](https://www.npmjs.com/package/launchql-extension-default-roles) | 458 | 3 | 0 |
-| [launchql-query](https://www.npmjs.com/package/launchql-query) | 458 | 9 | 0 |
-| [pg-deparser](https://www.npmjs.com/package/pg-deparser) | 447 | 11 | 1 |
-| [launchql-extension-verify](https://www.npmjs.com/package/launchql-extension-verify) | 445 | 5 | 0 |
-| [graphile-plugin-fulltext-filter](https://www.npmjs.com/package/graphile-plugin-fulltext-filter) | 435 | 435 | 134 |
-| [@lql-pg/base32](https://www.npmjs.com/package/@lql-pg/base32) | 434 | 434 | 1 |
-| [launchql-hooks](https://www.npmjs.com/package/launchql-hooks) | 429 | 6 | 0 |
-| [@libpg-query/v13](https://www.npmjs.com/package/@libpg-query/v13) | 358 | 14 | 1 |
-| [libpg-query-m1-native](https://www.npmjs.com/package/libpg-query-m1-native) | 348 | 3 | 0 |
-| [graphile-plugin-connection-filter](https://www.npmjs.com/package/graphile-plugin-connection-filter) | 319 | 319 | 145 |
-| [graphile-upload-plugin](https://www.npmjs.com/package/graphile-upload-plugin) | 291 | 291 | 130 |
-| [@lql-pg/utils](https://www.npmjs.com/package/@lql-pg/utils) | 278 | 278 | 0 |
-| [@lql-pg/types](https://www.npmjs.com/package/@lql-pg/types) | 267 | 267 | 1 |
-| [@lql-pg/faker](https://www.npmjs.com/package/@lql-pg/faker) | 214 | 214 | 0 |
-| [@pgsql/protobufjs](https://www.npmjs.com/package/@pgsql/protobufjs) | 183 | 3 | 1 |
-| [@lql-pg/supabase](https://www.npmjs.com/package/@lql-pg/supabase) | 176 | 176 | 0 |
-| [graphile-plugin-connection-filter-postgis](https://www.npmjs.com/package/graphile-plugin-connection-filter-postgis) | 176 | 176 | 176 |
-| [pgsql-codegen](https://www.npmjs.com/package/pgsql-codegen) | 176 | 3 | 1 |
-| [lql-protobufjs](https://www.npmjs.com/package/lql-protobufjs) | 167 | 4 | 1 |
-| [libpg-query-win](https://www.npmjs.com/package/libpg-query-win) | 160 | 5 | 0 |
-| [@lql-pg/default-roles](https://www.npmjs.com/package/@lql-pg/default-roles) | 153 | 153 | 0 |
-| [@lql-pg/inflection](https://www.npmjs.com/package/@lql-pg/inflection) | 127 | 127 | 0 |
-| [@lql-pg/database-jobs](https://www.npmjs.com/package/@lql-pg/database-jobs) | 125 | 125 | 0 |
-| [@lql-pg/meta-db](https://www.npmjs.com/package/@lql-pg/meta-db) | 116 | 116 | 0 |
-| [@lql-pg/meta-db-modules](https://www.npmjs.com/package/@lql-pg/meta-db-modules) | 111 | 111 | 0 |
-| [@lql-pg/jwt-claims](https://www.npmjs.com/package/@lql-pg/jwt-claims) | 110 | 110 | 0 |
-| [graphile-pg-type-mappings](https://www.npmjs.com/package/graphile-pg-type-mappings) | 109 | 109 | 109 |
-| [@lql-pg/encrypted-secrets-table](https://www.npmjs.com/package/@lql-pg/encrypted-secrets-table) | 107 | 107 | 0 |
-| [@lql-pg/defaults](https://www.npmjs.com/package/@lql-pg/defaults) | 103 | 103 | 0 |
-| [@lql-pg/geotypes](https://www.npmjs.com/package/@lql-pg/geotypes) | 102 | 102 | 0 |
-| [@lql-pg/meta-db-test](https://www.npmjs.com/package/@lql-pg/meta-db-test) | 102 | 102 | 0 |
-| [@lql-pg/encrypted-secrets](https://www.npmjs.com/package/@lql-pg/encrypted-secrets) | 101 | 101 | 0 |
-| [@lql-pg/jobs](https://www.npmjs.com/package/@lql-pg/jobs) | 101 | 101 | 0 |
-| [@lql-pg/measurements](https://www.npmjs.com/package/@lql-pg/measurements) | 100 | 100 | 0 |
-| [@lql-pg/totp](https://www.npmjs.com/package/@lql-pg/totp) | 100 | 100 | 0 |
-| [launchql](https://www.npmjs.com/package/launchql) | 100 | 4 | 1 |
-| [@lql-pg/uuid](https://www.npmjs.com/package/@lql-pg/uuid) | 99 | 99 | 0 |
-| [@lql-pg/achievements](https://www.npmjs.com/package/@lql-pg/achievements) | 98 | 98 | 0 |
-| [@libpg-query/browser](https://www.npmjs.com/package/@libpg-query/browser) | 96 | 6 | 0 |
-| [@lql-pg/stamps](https://www.npmjs.com/package/@lql-pg/stamps) | 96 | 96 | 0 |
-| [pg-spec](https://www.npmjs.com/package/pg-spec) | 90 | 5 | 1 |
-| [postgres-codegen](https://www.npmjs.com/package/postgres-codegen) | 89 | 3 | 1 |
+| *56 packages hidden (< 1,000 downloads)* | | | |
 
 ### protobufs
 
@@ -398,35 +342,7 @@ A unified toolkit for building applications and smart contracts in the Interchai
 | [@protobufs/bcna](https://www.npmjs.com/package/@protobufs/bcna) | 1,511 | 11 | 4 |
 | [@protobufs/pylons](https://www.npmjs.com/package/@protobufs/pylons) | 1,429 | 6 | 1 |
 | [@protobufs/comdex](https://www.npmjs.com/package/@protobufs/comdex) | 1,172 | 9 | 2 |
-| [@protobufs/evmos](https://www.npmjs.com/package/@protobufs/evmos) | 974 | 5 | 0 |
-| [@protobufs/axelar](https://www.npmjs.com/package/@protobufs/axelar) | 956 | 5 | 0 |
-| [@protobufs/canto](https://www.npmjs.com/package/@protobufs/canto) | 614 | 3 | 0 |
-| [@protobufs/cronos](https://www.npmjs.com/package/@protobufs/cronos) | 604 | 3 | 0 |
-| [@protobufs/desmos](https://www.npmjs.com/package/@protobufs/desmos) | 591 | 3 | 0 |
-| [@protobufs/bitsong](https://www.npmjs.com/package/@protobufs/bitsong) | 583 | 3 | 0 |
-| [@protobufs/scavenge](https://www.npmjs.com/package/@protobufs/scavenge) | 575 | 3 | 0 |
-| [@protobufs/cyber](https://www.npmjs.com/package/@protobufs/cyber) | 571 | 3 | 0 |
-| [@protobufs/umee](https://www.npmjs.com/package/@protobufs/umee) | 484 | 7 | 2 |
-| [@protobufs/omniflix](https://www.npmjs.com/package/@protobufs/omniflix) | 446 | 7 | 2 |
-| [@protobufs/persistence](https://www.npmjs.com/package/@protobufs/persistence) | 436 | 7 | 2 |
-| [@protobufs/passage3d](https://www.npmjs.com/package/@protobufs/passage3d) | 432 | 7 | 2 |
-| [@protobufs/kava](https://www.npmjs.com/package/@protobufs/kava) | 272 | 3 | 0 |
-| [@protobufs/eve](https://www.npmjs.com/package/@protobufs/eve) | 269 | 3 | 0 |
-| [@protobufs/uptake](https://www.npmjs.com/package/@protobufs/uptake) | 269 | 3 | 0 |
-| [@protobufs/galaxy](https://www.npmjs.com/package/@protobufs/galaxy) | 268 | 3 | 0 |
-| [@protobufs/oracle](https://www.npmjs.com/package/@protobufs/oracle) | 263 | 3 | 0 |
-| [@protobufs/likechain](https://www.npmjs.com/package/@protobufs/likechain) | 262 | 3 | 0 |
-| [@protobufs/sifnode](https://www.npmjs.com/package/@protobufs/sifnode) | 262 | 3 | 0 |
-| [@protobufs/shentu](https://www.npmjs.com/package/@protobufs/shentu) | 260 | 3 | 0 |
-| [@protobufs/panacea](https://www.npmjs.com/package/@protobufs/panacea) | 259 | 3 | 0 |
-| [@protobufs/sentinel](https://www.npmjs.com/package/@protobufs/sentinel) | 257 | 3 | 0 |
-| [@protobufs/lumenx](https://www.npmjs.com/package/@protobufs/lumenx) | 256 | 3 | 0 |
-| [@protobufs/em](https://www.npmjs.com/package/@protobufs/em) | 255 | 3 | 0 |
-| [@protobufs/provenance](https://www.npmjs.com/package/@protobufs/provenance) | 254 | 3 | 0 |
-| [@protobufs/vidilum](https://www.npmjs.com/package/@protobufs/vidilum) | 248 | 3 | 0 |
-| [@protobufs/vidulum](https://www.npmjs.com/package/@protobufs/vidulum) | 247 | 3 | 0 |
-| [@protobufs/cht](https://www.npmjs.com/package/@protobufs/cht) | 246 | 3 | 0 |
-| [@protobufs/echelon](https://www.npmjs.com/package/@protobufs/echelon) | 243 | 3 | 0 |
+| *29 packages hidden (< 1,000 downloads)* | | | |
 
 ### chain-registry
 
@@ -550,19 +466,7 @@ A unified toolkit for building applications and smart contracts in the Interchai
 | [@cosmos-kit/aria-extension](https://www.npmjs.com/package/@cosmos-kit/aria-extension) | 1,537 | 49 | 16 |
 | [@cosmos-kit/gatewallet](https://www.npmjs.com/package/@cosmos-kit/gatewallet) | 1,530 | 52 | 16 |
 | [@cosmos-wallet/registry](https://www.npmjs.com/package/@cosmos-wallet/registry) | 1,095 | 9 | 4 |
-| [@cosmos-kit/aria-mobile](https://www.npmjs.com/package/@cosmos-kit/aria-mobile) | 924 | 44 | 10 |
-| [@cosmos-kit/aria](https://www.npmjs.com/package/@cosmos-kit/aria) | 912 | 45 | 10 |
-| [@cosmos-wallet/keplr](https://www.npmjs.com/package/@cosmos-wallet/keplr) | 826 | 8 | 3 |
-| [@cosmos-wallet/types](https://www.npmjs.com/package/@cosmos-wallet/types) | 818 | 9 | 3 |
-| [@cosmos-kit/bitgetwallet](https://www.npmjs.com/package/@cosmos-kit/bitgetwallet) | 811 | 42 | 10 |
-| [@cosmos-kit/foxwallet-extension](https://www.npmjs.com/package/@cosmos-kit/foxwallet-extension) | 699 | 40 | 10 |
-| [@cosmos-kit/foxwallet](https://www.npmjs.com/package/@cosmos-kit/foxwallet) | 676 | 37 | 10 |
-| [@cosmos-kit/figure-markets-mobile](https://www.npmjs.com/package/@cosmos-kit/figure-markets-mobile) | 624 | 37 | 6 |
-| [@cosmos-kit/figure-markets](https://www.npmjs.com/package/@cosmos-kit/figure-markets) | 581 | 34 | 6 |
-| [@cosmos-kit/terra-extension](https://www.npmjs.com/package/@cosmos-kit/terra-extension) | 499 | 12 | 4 |
-| [@cosmos-kit/omni-extension](https://www.npmjs.com/package/@cosmos-kit/omni-extension) | 405 | 8 | 2 |
-| [@cosmos-kit/vultisig-extension](https://www.npmjs.com/package/@cosmos-kit/vultisig-extension) | 232 | 35 | 2 |
-| [@cosmos-kit/vultisig](https://www.npmjs.com/package/@cosmos-kit/vultisig) | 227 | 37 | 2 |
+| *13 packages hidden (< 1,000 downloads)* | | | |
 
 ### telescope
 
@@ -597,20 +501,7 @@ A unified toolkit for building applications and smart contracts in the Interchai
 | [cosmwasm-typescript-gen](https://www.npmjs.com/package/cosmwasm-typescript-gen) | 19,370 | 88 | 3 |
 | [@cosmjson/wasmswap](https://www.npmjs.com/package/@cosmjson/wasmswap) | 2,374 | 20 | 3 |
 | [@cosmjson/stargaze-minter](https://www.npmjs.com/package/@cosmjson/stargaze-minter) | 1,031 | 9 | 5 |
-| [@cosmjson/stargaze-sg721](https://www.npmjs.com/package/@cosmjson/stargaze-sg721) | 993 | 10 | 5 |
-| [@cosmjson/stargaze-whitelist](https://www.npmjs.com/package/@cosmjson/stargaze-whitelist) | 730 | 7 | 3 |
-| [@cosmjson/stargaze](https://www.npmjs.com/package/@cosmjson/stargaze) | 583 | 5 | 2 |
-| [@cosmjson/stargaze-royalty-group](https://www.npmjs.com/package/@cosmjson/stargaze-royalty-group) | 558 | 6 | 3 |
-| [@cosmjson/stargaze-ics721](https://www.npmjs.com/package/@cosmjson/stargaze-ics721) | 557 | 7 | 3 |
-| [@cosmjson/stargaze-claim](https://www.npmjs.com/package/@cosmjson/stargaze-claim) | 548 | 8 | 3 |
-| [@cosmjson/stargaze-base-minter](https://www.npmjs.com/package/@cosmjson/stargaze-base-minter) | 319 | 5 | 1 |
-| [@cosmjson/stargaze-sg721-metdata-onchain](https://www.npmjs.com/package/@cosmjson/stargaze-sg721-metdata-onchain) | 316 | 5 | 1 |
-| [@cosmjson/stargaze-vending-factory](https://www.npmjs.com/package/@cosmjson/stargaze-vending-factory) | 301 | 5 | 1 |
-| [@cosmjson/stargaze-vending-minter](https://www.npmjs.com/package/@cosmjson/stargaze-vending-minter) | 300 | 5 | 1 |
-| [@cosmjson/stargaze-sg721-base](https://www.npmjs.com/package/@cosmjson/stargaze-sg721-base) | 298 | 6 | 1 |
-| [@cosmjson/stargaze-splits](https://www.npmjs.com/package/@cosmjson/stargaze-splits) | 297 | 6 | 1 |
-| [@cosmjson/stargaze-base-factory](https://www.npmjs.com/package/@cosmjson/stargaze-base-factory) | 296 | 6 | 1 |
-| [@cosmjson/stargaze-sg721-nt](https://www.npmjs.com/package/@cosmjson/stargaze-sg721-nt) | 295 | 5 | 1 |
+| *14 packages hidden (< 1,000 downloads)* | | | |
 
 ### interchain-js
 
@@ -639,32 +530,7 @@ A unified toolkit for building applications and smart contracts in the Interchai
 | [interchain46](https://www.npmjs.com/package/interchain46) | 1,527 | 43 | 10 |
 | [@interchainjs/ethermint](https://www.npmjs.com/package/@interchainjs/ethermint) | 1,221 | 9 | 1 |
 | [interchain-react](https://www.npmjs.com/package/interchain-react) | 1,219 | 9 | 2 |
-| [interchain-vue](https://www.npmjs.com/package/interchain-vue) | 880 | 5 | 2 |
-| [interchain-lcd](https://www.npmjs.com/package/interchain-lcd) | 859 | 6 | 0 |
-| [@interchainjs/solana](https://www.npmjs.com/package/@interchainjs/solana) | 648 | 67 | 16 |
-| [@interchainjs/cosmos-msgs](https://www.npmjs.com/package/@interchainjs/cosmos-msgs) | 541 | 1 | 0 |
-| [@interchainjs/cosmos-query](https://www.npmjs.com/package/@interchainjs/cosmos-query) | 493 | 1 | 0 |
-| [interweb-registry](https://www.npmjs.com/package/interweb-registry) | 443 | 3 | 0 |
-| [interchain-connect](https://www.npmjs.com/package/interchain-connect) | 424 | 65 | 13 |
-| [interchain-registry](https://www.npmjs.com/package/interchain-registry) | 386 | 12 | 0 |
-| [interweb](https://www.npmjs.com/package/interweb) | 355 | 56 | 8 |
-| [interchain-router](https://www.npmjs.com/package/interchain-router) | 350 | 4 | 1 |
-| [interchain-utils](https://www.npmjs.com/package/interchain-utils) | 294 | 6 | 1 |
-| [interchain-wallet](https://www.npmjs.com/package/interchain-wallet) | 284 | 6 | 1 |
-| [ibc-connect](https://www.npmjs.com/package/ibc-connect) | 283 | 4 | 1 |
-| [interchain-chooser](https://www.npmjs.com/package/interchain-chooser) | 283 | 4 | 1 |
-| [interchain-assets](https://www.npmjs.com/package/interchain-assets) | 280 | 5 | 0 |
-| [ibc-kit](https://www.npmjs.com/package/ibc-kit) | 268 | 5 | 1 |
-| [interchain-ui](https://www.npmjs.com/package/interchain-ui) | 258 | 4 | 0 |
-| [ibc-script](https://www.npmjs.com/package/ibc-script) | 203 | 4 | 0 |
-| [interweb-query](https://www.npmjs.com/package/interweb-query) | 190 | 3 | 0 |
-| [interweb-ui](https://www.npmjs.com/package/interweb-ui) | 190 | 7 | 1 |
-| [interweb-id](https://www.npmjs.com/package/interweb-id) | 182 | 7 | 0 |
-| [interwebjs](https://www.npmjs.com/package/interwebjs) | 179 | 3 | 0 |
-| [interweb-kit](https://www.npmjs.com/package/interweb-kit) | 176 | 4 | 0 |
-| [interchain-id](https://www.npmjs.com/package/interchain-id) | 174 | 5 | 0 |
-| [interweb-wallet](https://www.npmjs.com/package/interweb-wallet) | 169 | 5 | 0 |
-| [injective-query](https://www.npmjs.com/package/injective-query) | 128 | 2 | 1 |
+| *26 packages hidden (< 1,000 downloads)* | | | |
 
 ### hyperwebjs
 
@@ -674,14 +540,7 @@ A unified toolkit for building applications and smart contracts in the Interchai
 | [hyperwebjs](https://www.npmjs.com/package/hyperwebjs) | 3,175 | 105 | 35 |
 | [@hyperweb/build](https://www.npmjs.com/package/@hyperweb/build) | 2,172 | 97 | 35 |
 | [@hyperweb/telescope](https://www.npmjs.com/package/@hyperweb/telescope) | 1,702 | 163 | 13 |
-| [@hyperweb/parse](https://www.npmjs.com/package/@hyperweb/parse) | 823 | 17 | 1 |
-| [create-hyperweb-app](https://www.npmjs.com/package/create-hyperweb-app) | 812 | 22 | 7 |
-| [@hyperweb/mcp-server](https://www.npmjs.com/package/@hyperweb/mcp-server) | 664 | 10 | 1 |
-| [@hyperweb/ts-json-schema](https://www.npmjs.com/package/@hyperweb/ts-json-schema) | 362 | 4 | 1 |
-| [@hyperweb/playground](https://www.npmjs.com/package/@hyperweb/playground) | 202 | 5 | 1 |
-| [@hyperweb/cli](https://www.npmjs.com/package/@hyperweb/cli) | 182 | 4 | 1 |
-| [hyperweb-kit](https://www.npmjs.com/package/hyperweb-kit) | 176 | 5 | 1 |
-| [@hyperweb/explorer](https://www.npmjs.com/package/@hyperweb/explorer) | 90 | 4 | 1 |
+| *8 packages hidden (< 1,000 downloads)* | | | |
 
 ### interchain-kit
 
@@ -723,9 +582,7 @@ A unified toolkit for building applications and smart contracts in the Interchai
 | [@interchain-kit/shell-extension](https://www.npmjs.com/package/@interchain-kit/shell-extension) | 3,643 | 155 | 1 |
 | [@interchain-kit/phantom-extension](https://www.npmjs.com/package/@interchain-kit/phantom-extension) | 1,316 | 40 | 1 |
 | [@interchain-kit/store](https://www.npmjs.com/package/@interchain-kit/store) | 1,189 | 92 | 24 |
-| [@interchain-kit/backpack-extension](https://www.npmjs.com/package/@interchain-kit/backpack-extension) | 594 | 28 | 1 |
-| [@interchain-kit/solflare-extension](https://www.npmjs.com/package/@interchain-kit/solflare-extension) | 591 | 28 | 1 |
-| [@interchain-kit/vultisig-extension](https://www.npmjs.com/package/@interchain-kit/vultisig-extension) | 214 | 11 | 0 |
+| *3 packages hidden (< 1,000 downloads)* | | | |
 
 ### interchain-ui
 
@@ -735,16 +592,7 @@ A unified toolkit for building applications and smart contracts in the Interchai
 | [@interchain-ui/react](https://www.npmjs.com/package/@interchain-ui/react) | 288,926 | 8,618 | 2,611 |
 | [@interchain-ui/vue](https://www.npmjs.com/package/@interchain-ui/vue) | 10,234 | 23 | 2 |
 | [@interchain-ui/react-no-ssr](https://www.npmjs.com/package/@interchain-ui/react-no-ssr) | 7,390 | 269 | 26 |
-| [@interweb-ui/cli](https://www.npmjs.com/package/@interweb-ui/cli) | 785 | 6 | 0 |
-| [@interweb-ui/compiler](https://www.npmjs.com/package/@interweb-ui/compiler) | 660 | 5 | 0 |
-| [@interweb-ui/react](https://www.npmjs.com/package/@interweb-ui/react) | 209 | 7 | 1 |
-
-### quicksilver
-
-| Name | Total | Monthly | Weekly |
-| ------- | ------ | ------- | ----- |
-| _Total_ | 6,778 | 69 | 0 |
-| [quicksilverjs](https://www.npmjs.com/package/quicksilverjs) | 6,778 | 69 | 0 |
+| *3 packages hidden (< 1,000 downloads)* | | | |
 
 ### osmosis
 
@@ -758,13 +606,7 @@ A unified toolkit for building applications and smart contracts in the Interchai
 | [@osmosis-labs/pools](https://www.npmjs.com/package/@osmosis-labs/pools) | 7,711 | 63 | 5 |
 | [@osmosis-labs/proto-codecs](https://www.npmjs.com/package/@osmosis-labs/proto-codecs) | 4,650 | 9 | 2 |
 | [@osmosis-labs/stores](https://www.npmjs.com/package/@osmosis-labs/stores) | 3,881 | 35 | 2 |
-| [osmojs-rc](https://www.npmjs.com/package/osmojs-rc) | 738 | 45 | 7 |
-| [@mesh-security/types](https://www.npmjs.com/package/@mesh-security/types) | 513 | 2 | 0 |
-| [osmojs-tsc-build](https://www.npmjs.com/package/osmojs-tsc-build) | 342 | 5 | 0 |
-| [@osmosis-labs/codegen](https://www.npmjs.com/package/@osmosis-labs/codegen) | 334 | 5 | 0 |
-| [osmosisjs](https://www.npmjs.com/package/osmosisjs) | 306 | 3 | 0 |
-| [osmojs-bigint](https://www.npmjs.com/package/osmojs-bigint) | 224 | 7 | 0 |
-| [osmojs-react-query](https://www.npmjs.com/package/osmojs-react-query) | 204 | 5 | 0 |
+| *7 packages hidden (< 1,000 downloads)* | | | |
 
 ### starship
 
@@ -775,7 +617,7 @@ A unified toolkit for building applications and smart contracts in the Interchai
 | [starshipjs](https://www.npmjs.com/package/starshipjs) | 27,387 | 1,241 | 271 |
 | [@starship-ci/cli](https://www.npmjs.com/package/@starship-ci/cli) | 25,563 | 1,359 | 265 |
 | [@starship-ci/types](https://www.npmjs.com/package/@starship-ci/types) | 4,471 | 235 | 45 |
-| [@starship-ci/generator](https://www.npmjs.com/package/@starship-ci/generator) | 473 | 15 | 3 |
+| *1 package hidden (< 1,000 downloads)* | | | |
 
 ### cosmology
 
@@ -827,71 +669,7 @@ A unified toolkit for building applications and smart contracts in the Interchai
 | [mesh-security](https://www.npmjs.com/package/mesh-security) | 1,153 | 6 | 1 |
 | [@cosmology/ts-codegen-types](https://www.npmjs.com/package/@cosmology/ts-codegen-types) | 1,124 | 10 | 6 |
 | [@uni-sign/types](https://www.npmjs.com/package/@uni-sign/types) | 1,063 | 3 | 0 |
-| [@uni-sign/utils](https://www.npmjs.com/package/@uni-sign/utils) | 996 | 10 | 0 |
-| [@cosmology/cosmjs](https://www.npmjs.com/package/@cosmology/cosmjs) | 933 | 11 | 7 |
-| [cpbf](https://www.npmjs.com/package/cpbf) | 881 | 6 | 1 |
-| [teritori](https://www.npmjs.com/package/teritori) | 828 | 4 | 0 |
-| [terrascope](https://www.npmjs.com/package/terrascope) | 764 | 5 | 0 |
-| [@uni-sign/cosmos-msgs](https://www.npmjs.com/package/@uni-sign/cosmos-msgs) | 763 | 14 | 0 |
-| [juno-rpc](https://www.npmjs.com/package/juno-rpc) | 759 | 5 | 1 |
-| [@pyramation/osmosis-protobufs](https://www.npmjs.com/package/@pyramation/osmosis-protobufs) | 753 | 2 | 0 |
-| [daodao](https://www.npmjs.com/package/daodao) | 739 | 5 | 0 |
-| [@uni-sign/cosmos-query](https://www.npmjs.com/package/@uni-sign/cosmos-query) | 702 | 1 | 0 |
-| [@uni-sign/cosmos](https://www.npmjs.com/package/@uni-sign/cosmos) | 695 | 2 | 0 |
-| [@uni-sign/ethereum](https://www.npmjs.com/package/@uni-sign/ethereum) | 671 | 10 | 0 |
-| [@pyramation/cosmonautsjs](https://www.npmjs.com/package/@pyramation/cosmonautsjs) | 667 | 4 | 0 |
-| [gnojs](https://www.npmjs.com/package/gnojs) | 667 | 3 | 0 |
-| [@uni-sign/auth](https://www.npmjs.com/package/@uni-sign/auth) | 643 | 1 | 0 |
-| [bitcanna](https://www.npmjs.com/package/bitcanna) | 641 | 4 | 0 |
-| [@cosmology/ui](https://www.npmjs.com/package/@cosmology/ui) | 611 | 6 | 2 |
-| [@cosmonauts/cosmos](https://www.npmjs.com/package/@cosmonauts/cosmos) | 610 | 9 | 5 |
-| [@osmonauts/transpiler](https://www.npmjs.com/package/@osmonauts/transpiler) | 550 | 5 | 1 |
-| [connect-interchain](https://www.npmjs.com/package/connect-interchain) | 542 | 80 | 14 |
-| [@cosmology/babel-plugin-transform-bigint](https://www.npmjs.com/package/@cosmology/babel-plugin-transform-bigint) | 521 | 6 | 4 |
-| [@uni-sign/injective](https://www.npmjs.com/package/@uni-sign/injective) | 518 | 1 | 0 |
-| [@cosmology/babel](https://www.npmjs.com/package/@cosmology/babel) | 503 | 6 | 3 |
-| [@cosmonauts/cosmjs](https://www.npmjs.com/package/@cosmonauts/cosmjs) | 471 | 7 | 4 |
-| [@cosmonauts/auth](https://www.npmjs.com/package/@cosmonauts/auth) | 453 | 7 | 4 |
-| [@pyramation/cosmos-networks](https://www.npmjs.com/package/@pyramation/cosmos-networks) | 435 | 2 | 0 |
-| [da0da0](https://www.npmjs.com/package/da0da0) | 422 | 4 | 0 |
-| [daodaojs](https://www.npmjs.com/package/daodaojs) | 417 | 4 | 0 |
-| [da0da0js](https://www.npmjs.com/package/da0da0js) | 415 | 4 | 0 |
-| [@cosmonauts/cosmos-msgs](https://www.npmjs.com/package/@cosmonauts/cosmos-msgs) | 407 | 6 | 3 |
-| [cosmos-app](https://www.npmjs.com/package/cosmos-app) | 394 | 5 | 1 |
-| [teritorijs](https://www.npmjs.com/package/teritorijs) | 390 | 4 | 0 |
-| [chainmodal](https://www.npmjs.com/package/chainmodal) | 381 | 5 | 1 |
-| [@cosmonauts/interchain](https://www.npmjs.com/package/@cosmonauts/interchain) | 380 | 5 | 1 |
-| [@cosmonauts/types](https://www.npmjs.com/package/@cosmonauts/types) | 377 | 5 | 2 |
-| [cosmos-connect](https://www.npmjs.com/package/cosmos-connect) | 369 | 30 | 8 |
-| [comdex](https://www.npmjs.com/package/comdex) | 352 | 4 | 0 |
-| [badkids](https://www.npmjs.com/package/badkids) | 347 | 4 | 0 |
-| [@cosmonauts/core](https://www.npmjs.com/package/@cosmonauts/core) | 338 | 5 | 2 |
-| [chain-chooser](https://www.npmjs.com/package/chain-chooser) | 338 | 4 | 1 |
-| [connect-cosmos](https://www.npmjs.com/package/connect-cosmos) | 338 | 4 | 1 |
-| [connect-ibc](https://www.npmjs.com/package/connect-ibc) | 313 | 4 | 1 |
-| [wallet-chooser](https://www.npmjs.com/package/wallet-chooser) | 312 | 6 | 1 |
-| [@pyramation/osmojs](https://www.npmjs.com/package/@pyramation/osmojs) | 309 | 2 | 0 |
-| [gno](https://www.npmjs.com/package/gno) | 306 | 4 | 0 |
-| [chain-connect](https://www.npmjs.com/package/chain-connect) | 298 | 4 | 1 |
-| [pylonsjs](https://www.npmjs.com/package/pylonsjs) | 294 | 4 | 0 |
-| [@pyramation/crypto-fetch](https://www.npmjs.com/package/@pyramation/crypto-fetch) | 267 | 8 | 1 |
-| [@cosmonauts/utils](https://www.npmjs.com/package/@cosmonauts/utils) | 266 | 4 | 1 |
-| [wallet-registry](https://www.npmjs.com/package/wallet-registry) | 248 | 5 | 0 |
-| [@cosmonauts/cosmos-stargate](https://www.npmjs.com/package/@cosmonauts/cosmos-stargate) | 228 | 4 | 1 |
-| [@cosmonauts/cosmos-cosmjs](https://www.npmjs.com/package/@cosmonauts/cosmos-cosmjs) | 210 | 6 | 1 |
-| [@cosmonauts/cosmos-proto](https://www.npmjs.com/package/@cosmonauts/cosmos-proto) | 209 | 5 | 1 |
-| [@cosmonauts/cosmos-amino](https://www.npmjs.com/package/@cosmonauts/cosmos-amino) | 205 | 4 | 1 |
-| [@cosmonauts/cosmos-cosmwasm-stargate](https://www.npmjs.com/package/@cosmonauts/cosmos-cosmwasm-stargate) | 197 | 5 | 1 |
-| [@cosmonauts/cosmos-query](https://www.npmjs.com/package/@cosmonauts/cosmos-query) | 193 | 4 | 1 |
-| [cwscript](https://www.npmjs.com/package/cwscript) | 188 | 5 | 0 |
-| [dydxjs](https://www.npmjs.com/package/dydxjs) | 183 | 2 | 0 |
-| [@pyramation/cosmos-telescope-test](https://www.npmjs.com/package/@pyramation/cosmos-telescope-test) | 178 | 6 | 0 |
-| [dymensionjs](https://www.npmjs.com/package/dymensionjs) | 177 | 1 | 0 |
-| [@cosmonauts/injective](https://www.npmjs.com/package/@cosmonauts/injective) | 170 | 4 | 1 |
-| [cosmwasm-contracts](https://www.npmjs.com/package/cosmwasm-contracts) | 152 | 6 | 3 |
-| [validator-registry](https://www.npmjs.com/package/validator-registry) | 144 | 6 | 2 |
-| [@cosmology/db-client](https://www.npmjs.com/package/@cosmology/db-client) | 124 | 5 | 1 |
-| [cosmos-evm](https://www.npmjs.com/package/cosmos-evm) | 106 | 3 | 2 |
+| *65 packages hidden (< 1,000 downloads)* | | | |
 
 ### stride
 
@@ -959,18 +737,7 @@ A unified toolkit for building applications and smart contracts in the Interchai
 | [airpage-cli](https://www.npmjs.com/package/airpage-cli) | 1,404 | 5 | 0 |
 | [@webql/base32](https://www.npmjs.com/package/@webql/base32) | 1,319 | 214 | 1 |
 | [airpage](https://www.npmjs.com/package/airpage) | 1,175 | 2 | 1 |
-| [@webql/utils](https://www.npmjs.com/package/@webql/utils) | 931 | 199 | 1 |
-| [babel-plugin-icon-property-package-name](https://www.npmjs.com/package/babel-plugin-icon-property-package-name) | 897 | 7 | 0 |
-| [airdb](https://www.npmjs.com/package/airdb) | 875 | 2 | 0 |
-| [agentic-kit](https://www.npmjs.com/package/agentic-kit) | 655 | 80 | 1 |
-| [screenmagick](https://www.npmjs.com/package/screenmagick) | 575 | 3 | 0 |
-| [clean-ansi](https://www.npmjs.com/package/clean-ansi) | 384 | 384 | 41 |
-| [scriptmagick](https://www.npmjs.com/package/scriptmagick) | 384 | 3 | 0 |
-| [sdkscript](https://www.npmjs.com/package/sdkscript) | 272 | 14 | 1 |
-| [file-type-detection](https://www.npmjs.com/package/file-type-detection) | 259 | 74 | 7 |
-| [rust-ast-stringify](https://www.npmjs.com/package/rust-ast-stringify) | 250 | 4 | 0 |
-| [safegres](https://www.npmjs.com/package/safegres) | 192 | 25 | 2 |
-| [genomic](https://www.npmjs.com/package/genomic) | 161 | 4 | 0 |
+| *12 packages hidden (< 1,000 downloads)* | | | |
 
 ### create-cosmos-app
 
@@ -988,10 +755,7 @@ A unified toolkit for building applications and smart contracts in the Interchai
 | [kubernetesjs](https://www.npmjs.com/package/kubernetesjs) | 5,335 | 551 | 56 |
 | [@kubernetesjs/cli](https://www.npmjs.com/package/@kubernetesjs/cli) | 1,196 | 137 | 1 |
 | [@kubernetesjs/react](https://www.npmjs.com/package/@kubernetesjs/react) | 1,020 | 164 | 1 |
-| [@kubernetesjs/manifests](https://www.npmjs.com/package/@kubernetesjs/manifests) | 130 | 130 | 0 |
-| [@kubernetesjs/client](https://www.npmjs.com/package/@kubernetesjs/client) | 128 | 128 | 0 |
-| [@kubernetesjs/ops](https://www.npmjs.com/package/@kubernetesjs/ops) | 128 | 128 | 0 |
-| [@kubernetesjs/ops-cli](https://www.npmjs.com/package/@kubernetesjs/ops-cli) | 124 | 124 | 0 |
+| *4 packages hidden (< 1,000 downloads)* | | | |
 
 ### pgpm
 
@@ -1015,23 +779,7 @@ A unified toolkit for building applications and smart contracts in the Interchai
 | [@pgpm/uuid](https://www.npmjs.com/package/@pgpm/uuid) | 1,655 | 1,655 | 951 |
 | [@pgsql/cli](https://www.npmjs.com/package/@pgsql/cli) | 1,636 | 324 | 3 |
 | [@pgpm/faker](https://www.npmjs.com/package/@pgpm/faker) | 1,415 | 1,415 | 710 |
-| [@pgpm/encrypted-secrets-table](https://www.npmjs.com/package/@pgpm/encrypted-secrets-table) | 753 | 753 | 7 |
-| [@pgpm/encrypted-secrets](https://www.npmjs.com/package/@pgpm/encrypted-secrets) | 727 | 727 | 2 |
-| [@pgpm/meta-db-test](https://www.npmjs.com/package/@pgpm/meta-db-test) | 724 | 724 | 0 |
-| [@pgpm/achievements](https://www.npmjs.com/package/@pgpm/achievements) | 715 | 715 | 2 |
-| [@pgpm/geotypes](https://www.npmjs.com/package/@pgpm/geotypes) | 713 | 713 | 1 |
-| [@pgpm/jobs](https://www.npmjs.com/package/@pgpm/jobs) | 713 | 713 | 1 |
-| [@pgpm/measurements](https://www.npmjs.com/package/@pgpm/measurements) | 700 | 700 | 0 |
-| [@pgpm-testing/base32](https://www.npmjs.com/package/@pgpm-testing/base32) | 386 | 386 | 27 |
-| [@pgpm-testing/verify](https://www.npmjs.com/package/@pgpm-testing/verify) | 374 | 374 | 28 |
-| [@pgpm-testing/utils](https://www.npmjs.com/package/@pgpm-testing/utils) | 349 | 349 | 23 |
-| [@pgpm/supabase](https://www.npmjs.com/package/@pgpm/supabase) | 227 | 227 | 0 |
-| [@pgpm-testing/faker](https://www.npmjs.com/package/@pgpm-testing/faker) | 120 | 120 | 0 |
-| [@pgpm-testing/types](https://www.npmjs.com/package/@pgpm-testing/types) | 120 | 120 | 0 |
-| [@pgpm-testing/stamps](https://www.npmjs.com/package/@pgpm-testing/stamps) | 112 | 112 | 0 |
-| [@pgpm-testing/uuid](https://www.npmjs.com/package/@pgpm-testing/uuid) | 110 | 110 | 0 |
-| [@pgpm-testing/geotypes](https://www.npmjs.com/package/@pgpm-testing/geotypes) | 109 | 109 | 0 |
-| [@pgpm/cli](https://www.npmjs.com/package/@pgpm/cli) | 82 | 82 | 0 |
+| *17 packages hidden (< 1,000 downloads)* | | | |
 
 
 ---
@@ -1080,4 +828,4 @@ Let's build the future, together. 🚀
 
 
 
-<!-- README.md automatically generated on 2025-12-06T07:40:47.396Z from lib-count repository with latest download stats -->
+<!-- README.md automatically generated on 2025-12-06T07:59:54.744Z from lib-count repository with latest download stats -->
