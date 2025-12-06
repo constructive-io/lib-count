@@ -420,8 +420,8 @@ function generateTimestampComment(repoBaseName: string): string {
 export async function generateReadmeNew(): Promise<string> {
   const db = new Database();
   let readmeContent = "# Interweb, Inc.\n";
-  let repoName = "hyperweb-io/hyperweb-statistics";
-  let repoBaseName = "hyperweb-statistics";
+  let repoName = "hyperweb-io/lib-count";
+  let repoBaseName = "lib-count";
 
   // Initialize categoryStatsMap and totals
   const categoryStatsMap = new Map<string, CategoryStats>();
