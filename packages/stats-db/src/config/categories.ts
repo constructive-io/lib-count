@@ -1,6 +1,42 @@
 // NPM Package Categories Configuration
 // This file defines the categorization of packages for statistics tracking
 
+// README Display Configuration
+// Categories listed here will be HIDDEN from the README
+// They are still counted in totals, just not displayed
+export const readmeHiddenCategories: string[] = [
+  "misc",
+  "math",
+  "boilerplates",
+];
+
+// README Display Order
+// Categories listed here appear first in this order
+// Any categories not listed will appear after in their natural order
+export const readmeCategoryOrder: string[] = [
+  "launchql",
+  "protobufs",
+  "chain-registry",
+  "cosmos-kit",
+  "cosmos-kit-wallets",
+  "telescope",
+  "cosmwasm",
+  "interchain-js",
+  "hyperwebjs",
+  "interchain-kit",
+  "interchain-kit-wallets",
+  "interchain-ui",
+  "quicksilver",
+  "osmosis",
+  "starship",
+  "cosmology",
+  "stride",
+  "juno",
+  "stargaze",
+  "dydx",
+  "utils",
+];
+
 // INPUT TYPES
 export type Packages = {
   [categoryName: string]: string[];

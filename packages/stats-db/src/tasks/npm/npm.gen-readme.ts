@@ -2,7 +2,7 @@ import { Database } from "@cosmology/db-client";
 import { PoolClient } from "pg";
 import * as fs from "fs";
 import * as path from "path";
-import { packages } from "../../config";
+import { packages, readmeHiddenCategories, readmeCategoryOrder } from "../../config";
 import {
   DownloadStats,
   PackageStats,
@@ -326,7 +326,7 @@ We\'re thrilled to share that [**Cosmology** has rebranded as **Hyperweb**](http
 ### LaunchQL
 
 - 🔗 **LaunchQL GitHub Organization:** [**launchql**](https://github.com/launchql)
-- 🌐 **LaunchQL Website:** [**launchql.io**](https://launchql.com)
+- 🌐 **LaunchQL Website:** [**launchql.com**](https://launchql.com)
 
 `; // Ensured two newlines for a blank line before the --- separator
 }
@@ -363,10 +363,10 @@ function generateToolsTable(
 | Category             | Tools                                                                                                                  | Downloads                                                                                                 |
 |----------------------|------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------|
 | **Chain Information**   | [**Chain Registry**](https://github.com/hyperweb-io/chain-registry), [**Utils**](https://www.npmjs.com/package/@chain-registry/utils), [**Client**](https://www.npmjs.com/package/@chain-registry/client) | ![Chain Registry](${productBadgeUrl("chain-registry")}) |
-| **Wallet Connectors**| [**Interchain Kit**](https://github.com/hyperweb-io/interchain-kit)<sup>beta</sup>, [**Cosmos Kit**](https://github.com/hyperweb-io/cosmos-kit) | ![Wallet Connectors](${productBadgeUrl("cosmos-kit")}) |
-| **Signing Clients**          | [**InterchainJS**](https://github.com/hyperweb-io/interchainjs)<sup>beta</sup>, [**CosmJS**](https://github.com/cosmos/cosmjs) | ![Signers](${productBadgeUrl("cosmos-kit")}) |
+| **Wallet Connectors**| [**Interchain Kit**](https://github.com/hyperweb-io/interchain-kit), [**Cosmos Kit**](https://github.com/hyperweb-io/cosmos-kit) | ![Wallet Connectors](${productBadgeUrl("cosmos-kit")}) |
+| **Signing Clients**          | [**InterchainJS**](https://github.com/hyperweb-io/interchainjs), [**CosmJS**](https://github.com/cosmos/cosmjs) | ![Signers](${productBadgeUrl("cosmos-kit")}) |
 | **SDK Clients**              | [**Telescope**](https://github.com/hyperweb-io/telescope)                                                          | ![SDK](${productBadgeUrl("telescope")}) |
-| **Starter Kits**     | [**Create Interchain App**](https://github.com/hyperweb-io/create-interchain-app)<sup>beta</sup>, [**Create Cosmos App**](https://github.com/hyperweb-io/create-cosmos-app) | ![Starter Kits](${productBadgeUrl("create-cosmos-app")}) |
+| **Starter Kits**     | [**Create Interchain App**](https://github.com/hyperweb-io/create-interchain-app), [**Create Cosmos App**](https://github.com/hyperweb-io/create-cosmos-app) | ![Starter Kits](${productBadgeUrl("create-cosmos-app")}) |
 | **UI Kits**          | [**Interchain UI**](https://github.com/hyperweb-io/interchain-ui)                                                   | ![UI Kits](${productBadgeUrl("interchain-ui")}) |
 | **Testing Frameworks**          | [**Starship**](https://github.com/hyperweb-io/starship)                                                             | ![Testing](${productBadgeUrl("starship")}) |
 | **TypeScript Smart Contracts** | [**Create Hyperweb App**](https://github.com/hyperweb-io/create-hyperweb-app)                              | ![TypeScript Smart Contracts](${productBadgeUrl("hyperwebjs")}) |
@@ -588,10 +588,23 @@ export async function generateReadmeNew(): Promise<string> {
   readmeContent += generateOverallStatsTable(totals);
 
   // Generate and add Table of Contents
-  // Filter out misc and math categories from display
-  const categoryKeys = Object.keys(packages).filter(
-    (key) => key !== "misc" && key !== "math"
+  // Filter out hidden categories (they're still counted in totals)
+  // Sort by readmeCategoryOrder preference, then alphabetically for unlisted
+  const visibleCategories = Object.keys(packages).filter(
+    (key) => !readmeHiddenCategories.includes(key)
   );
+  const categoryKeys = visibleCategories.sort((a, b) => {
+    const aIndex = readmeCategoryOrder.indexOf(a);
+    const bIndex = readmeCategoryOrder.indexOf(b);
+    // Both in order list: sort by position
+    if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
+    // Only a in list: a comes first
+    if (aIndex !== -1) return -1;
+    // Only b in list: b comes first
+    if (bIndex !== -1) return 1;
+    // Neither in list: alphabetical
+    return a.localeCompare(b);
+  });
   readmeContent += generateToc(categoryKeys);
 
   // Add individual category tables
