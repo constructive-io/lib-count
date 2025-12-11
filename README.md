@@ -1,4 +1,3 @@
-
 # Interweb, Inc.
 
 <p align="center" width="100%">
@@ -23,7 +22,6 @@
       <img height="20" src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fconstructive-io%2Flib-count%2Fmain%2Foutput%2Fbadges%2Futils_category.json"/>
    </a>
 </p>
-
 
 ## 🚀 Brands of Interweb, Inc.
 
@@ -778,43 +776,6 @@ A unified toolkit for building applications and smart contracts in the Interchai
 | [@pgsql/cli](https://www.npmjs.com/package/@pgsql/cli) | 1,636 | 324 | 3 |
 | [@pgpm/faker](https://www.npmjs.com/package/@pgpm/faker) | 1,415 | 1,415 | 710 |
 | *17 packages hidden (< 1,000 downloads)* | | | |
-
-
----
-
-# Interchain JavaScript Stack Announcement
-
-🎥 Watch the [Interchain JS presentation](https://www.youtube.com/watch?v=locvOlLDoVY&list=PL_XyHnlG9MMvekTCbbJArAOwVlkCY54V5&index=1).
-
-<a href="https://www.youtube.com/watch?v=locvOlLDoVY&list=PL_XyHnlG9MMvekTCbbJArAOwVlkCY54V5&index=1">
-<img width="400px" src="https://github.com/user-attachments/assets/9d34000e-56ff-4e83-8e4d-612bc79712f4" />
-</a>
-
-
----
-
-## What Does This Rebrand Mean?
-
-### 🌟 **A Unified Vision**
-Hyperweb represents the evolution of Cosmology's mission, focusing on accessibility, innovation, and empowering cross-chain development for everyone.
-
-### 🤝 **Same Great Tools, New Identity**
-All the tools and projects you know and love from Cosmology are now part of the Hyperweb ecosystem. Expect the same commitment to open-source collaboration with a fresh perspective.
-
-
----
-
-## What's Next?
-
-1. **Explore Hyperweb**
-   Visit [**hyperweb-io on GitHub**](https://github.com/hyperweb-io) to find all the tools, repositories, and resources under the new brand.
-
-2. **Follow Our Growth**
-   Stay tuned as we continue to innovate and expand the possibilities of cross-chain development with Hyperweb.
-
-3. **Join the Movement**
-   Be part of the Hyperweb community and help us shape the future of decentralized technology.
-
 
 ---
 
