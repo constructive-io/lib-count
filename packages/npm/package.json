@@ -3,18 +3,18 @@
   "version": "0.0.1",
   "author": "Dan Lynch <pyramation@gmail.com>",
   "description": "NPM package stats",
-  "homepage": "https://github.com/hyperweb-io/lib-count",
+  "homepage": "https://github.com/constructive-io/lib-count",
   "license": "SEE LICENSE IN LICENSE",
   "publishConfig": {
-    "access": "undefined",
+    "access": "restricted",
     "directory": "dist"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/undefined/undefined"
+    "url": "https://github.com/constructive-io/lib-count"
   },
   "bugs": {
-    "url": "https://github.com/undefined/undefined/issues"
+    "url": "https://github.com/constructive-io/lib-count/issues"
   },
   "scripts": {
     "lint": "eslint . --fix",

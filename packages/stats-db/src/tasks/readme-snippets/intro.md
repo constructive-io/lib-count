@@ -1,12 +1,12 @@
 
 ## 🚀 Brands of Interweb, Inc.
 
-### LaunchQL
+### Constructive
 
 Tooling for Postgres
 
-- 🔗 **LaunchQL GitHub Organization:** [**launchql**](https://github.com/launchql)
-- 🌐 **LaunchQL Website:** [**launchql.com**](https://launchql.com)
+- 🔗 **Constructive GitHub Organization:** [**constructive-io**](https://github.com/constructive-io)
+- 🌐 **Constructive Website:** [**constructive.io**](https://constructive.io)
 
 ### PGPM
 
@@ -15,8 +15,6 @@ A Postgres Package Manager for Modular Postgres
 - 🌐 **PGPM Website:** [**pgpm.io**](https://pgpm.io)
 
 ### Hyperweb
-
-We're thrilled to share that [**Cosmology** has rebranded as **Hyperweb**](https://hyperweb.io/blog/01-28-2025-journey-from-cosmology-to-hyperweb)! 🎉
 
 - 🔗 **Hyperweb GitHub Organization:** [**hyperweb-io**](https://github.com/hyperweb-io)
 - 🌐 **Hyperweb Website:** [**hyperweb.io**](https://hyperweb.io)
