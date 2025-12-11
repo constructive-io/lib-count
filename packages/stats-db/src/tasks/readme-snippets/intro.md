@@ -14,7 +14,7 @@ A Postgres Package Manager for Modular Postgres
 
 - 🌐 **PGPM Website:** [**pgpm.io**](https://pgpm.io)
 
-### Hyperweb
+### Hyperweb (formerly Cosmology)
 
 - 🔗 **Hyperweb GitHub Organization:** [**hyperweb-io**](https://github.com/hyperweb-io)
 - 🌐 **Hyperweb Website:** [**hyperweb.io**](https://hyperweb.io)
