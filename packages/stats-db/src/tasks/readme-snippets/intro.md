@@ -1,5 +1,5 @@
 
-## 🚀 Brands of Interweb, Inc.
+## 🚀 Brands
 
 ### Constructive
 

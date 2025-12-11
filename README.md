@@ -1,4 +1,4 @@
-# Interweb, Inc.
+# Constructive NPM Downloads
 
 <p align="center" width="100%">
    <img src="https://raw.githubusercontent.com/constructive-io/lib-count/refs/heads/main/assets/logo.svg" alt="constructive" width="80"><br />
@@ -23,7 +23,7 @@
    </a>
 </p>
 
-## 🚀 Brands of Interweb, Inc.
+## 🚀 Brands
 
 ### Constructive
 
