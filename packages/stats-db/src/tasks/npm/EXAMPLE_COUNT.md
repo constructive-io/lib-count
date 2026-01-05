@@ -29,7 +29,7 @@ Welcome to the official repository for tracking the download counts of Hyperweb'
 ### Our Projects:
 
 - **[Hyperweb](https://github.com/hyperweb-io):** Build interchain apps in light speed.
-- **[LaunchQL](https://github.com/launchql):** Simplify database management.
+- **[Constructive](https://github.com/constructive-io):** Modular Postgres Framework.
 
 Join us in shaping the future of the web.
 
@@ -411,6 +411,6 @@ Download statistics serve as a robust indicator of usage and interest. Even with
 ### Related Projects
 
 - **[Hyperweb](https://github.com/hyperweb-io):** Build interchain apps in light speed.
-- **[LaunchQL](https://github.com/launchql):** Simplify database management.
+- **[Constructive](https://github.com/constructive-io):** Modular Postgres Framework.
 
 Join us in shaping the future of the web.
