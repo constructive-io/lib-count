@@ -690,7 +690,7 @@ async function generateReport(): Promise<string> {
 function generateBadgesSection(): string {
   return `
 <p align="center" width="100%">
- <img src="https://raw.githubusercontent.com/hyperweb-io/lib-count/refs/heads/main/assets/logo.svg" alt="hyperweb" width="80"><br />
+ <img src="https://raw.githubusercontent.com/constructive-io/lib-count/refs/heads/main/assets/logo.svg" alt="constructive" width="80"><br />
  <img height="20" src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fconstructive-io%2Flib-count%2Fmain%2Foutput%2Fbadges%2Flib-count%2Ftotal_downloads.json"/>
  <img height="20" src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fconstructive-io%2Flib-count%2Fmain%2Foutput%2Fbadges%2Flib-count%2Fmonthly_downloads.json"/>
  <img height="20" src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fconstructive-io%2Flib-count%2Fmain%2Foutput%2Fbadges%2Flib-count%2Fweekly_downloads.json"/>
@@ -700,13 +700,13 @@ function generateBadgesSection(): string {
 function generateOverviewSection(): string {
   return `### Software Download Count Repository
 
-Welcome to the official repository for tracking the download counts of Hyperweb's software. This repository provides detailed statistics on the downloads, helping users and developers gain insights into the usage and popularity of our products.
+Welcome to the official repository for tracking the download counts of Constructive's software. This repository provides detailed statistics on the downloads, helping users and developers gain insights into the usage and popularity of our products.
 
 **the Web:** At the heart of our mission is the synergy between the mature, user-friendly ecosystem of Web2 and the decentralized, secure potential of Web3. We're here to bridge this gap, unlocking real-world applications and the full potential of technology, making the web whole again.
 
 ### Our Projects:
 - **[Hyperweb](https://github.com/hyperweb-io):** Build interchain apps in light speed.
-- **[LaunchQL](https://github.com/launchql):** Simplify database management.
+- **[Constructive](https://github.com/constructive-io):** Modular Postgres Framework
 
 Join us in shaping the future of the web.\n`;
 }
@@ -722,7 +722,7 @@ Download statistics serve as a robust indicator of usage and interest. Even with
 
 ### Related Projects
 - **[Hyperweb](https://github.com/hyperweb-io):** Build interchain apps in light speed.
-- **[LaunchQL](https://github.com/launchql):** Simplify database management.
+- **[Constructive](https://github.com/constructive-io):** Modular Postgres Framework
 
 Join us in shaping the future of the web.\n`;
 }

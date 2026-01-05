@@ -291,7 +291,7 @@ function generateBadgesSection(repoName: string): string {
 
   return `
 <p align="center" width="100%">
-   <img src="https://raw.githubusercontent.com/${repoName}/refs/heads/main/assets/logo.svg" alt="hyperweb" width="80"><br />
+   <img src="https://raw.githubusercontent.com/${repoName}/refs/heads/main/assets/logo.svg" alt="constructive" width="80"><br />
    <a href="https://github.com/${repoName}">
       <img height="20" src="https://img.shields.io/endpoint?url=${encodedTotalDownloadsUrl}"/>
    </a>

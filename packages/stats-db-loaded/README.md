@@ -4,7 +4,7 @@ Database migration package for loading large datasets without bloating the repos
 
 ## Overview
 
-This package dynamically generates database migrations by fetching data from an external source. The actual SQL data files are `.gitignore`d to keep this repository lean and manageable. Instead of committing large SQL dumps directly, we fetch them from [hyperweb-io/lib-count-downloads](https://github.com/hyperweb-io/lib-count-downloads) and concatenate them into deployment-ready migrations on demand.
+This package dynamically generates database migrations by fetching data from an external source. The actual SQL data files are `.gitignore`d to keep this repository lean and manageable. Instead of committing large SQL dumps directly, we fetch them from [constructive-io/lib-count-downloads](https://github.com/constructive-io/lib-count-downloads) and concatenate them into deployment-ready migrations on demand.
 
 ## Why This Approach?
 
@@ -67,4 +67,4 @@ pg_dump \
 
 ### Publishing Data
 
-After exporting, commit the SQL file to the [lib-count-downloads](https://github.com/hyperweb-io/lib-count-downloads) repository to make it available for deployment.
+After exporting, commit the SQL file to the [lib-count-downloads](https://github.com/constructive-io/lib-count-downloads) repository to make it available for deployment.

@@ -4,7 +4,7 @@
 set -e
 
 # URL to download from
-URL="https://raw.githubusercontent.com/hyperweb-io/lib-count-downloads/refs/heads/main/stats_dev_inserts.sql"
+URL="https://raw.githubusercontent.com/constructive-io/lib-count-downloads/refs/heads/main/stats_dev_inserts.sql"
 
 # Temporary file for download
 TEMP_FILE="temp_stats_inserts.sql"
