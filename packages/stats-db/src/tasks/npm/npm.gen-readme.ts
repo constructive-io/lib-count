@@ -261,8 +261,8 @@ function generateOverallStatsTable(totals: TotalStats): string {
     "| Category | Total | Monthly | Weekly |",
     "| ------- | ------ | ------- | ----- |",
     `| **Total** | ${formatNumber(totals.total.total)} | ${formatNumber(totals.total.monthly)} | ${formatNumber(totals.total.weekly)} |`,
-    `| Web2 | ${formatNumber(totals.web2.total)} | ${formatNumber(totals.web2.monthly)} | ${formatNumber(totals.web2.weekly)} |`,
-    `| Web3 | ${formatNumber(totals.web3.total)} | ${formatNumber(totals.web3.monthly)} | ${formatNumber(totals.web3.weekly)} |`,
+    `| Cloud | ${formatNumber(totals.cloud.total)} | ${formatNumber(totals.cloud.monthly)} | ${formatNumber(totals.cloud.weekly)} |`,
+    `| Chain | ${formatNumber(totals.chain.total)} | ${formatNumber(totals.chain.monthly)} | ${formatNumber(totals.chain.weekly)} |`,
     `| Utilities | ${formatNumber(totals.utils.total)} | ${formatNumber(totals.utils.monthly)} | ${formatNumber(totals.utils.weekly)} |`,
   ];
   return lines.join("\n") + "\n\n"; // Ensure blank line after the table
@@ -452,8 +452,8 @@ export async function generateReadmeNew(): Promise<string> {
   // Initialize categoryStatsMap and totals
   const categoryStatsMap = new Map<string, CategoryStats>();
   let totals: TotalStats = {
-    web2: { total: 0, monthly: 0, weekly: 0 },
-    web3: { total: 0, monthly: 0, weekly: 0 },
+    cloud: { total: 0, monthly: 0, weekly: 0 },
+    chain: { total: 0, monthly: 0, weekly: 0 },
     utils: { total: 0, monthly: 0, weekly: 0 },
     total: { total: 0, monthly: 0, weekly: 0 },
     lifetime: 0,
@@ -510,20 +510,20 @@ export async function generateReadmeNew(): Promise<string> {
         );
         categoryStatsMap.set(categoryKey, stats);
 
-        // 3. Aggregate into totals.web2, totals.web3, totals.utils
+        // 3. Aggregate into totals.cloud, totals.chain, totals.utils
         if (categoryKey === "launchql") {
-          totals.web2.total += stats.total;
-          totals.web2.monthly += stats.monthly;
-          totals.web2.weekly += stats.weekly;
+          totals.cloud.total += stats.total;
+          totals.cloud.monthly += stats.monthly;
+          totals.cloud.weekly += stats.weekly;
         } else if (categoryKey === "utils") {
           totals.utils.total += stats.total;
           totals.utils.monthly += stats.monthly;
           totals.utils.weekly += stats.weekly;
         } else {
-          // All other explicit categories are considered web3
-          totals.web3.total += stats.total;
-          totals.web3.monthly += stats.monthly;
-          totals.web3.weekly += stats.weekly;
+          // All other explicit categories are considered chain
+          totals.chain.total += stats.total;
+          totals.chain.monthly += stats.monthly;
+          totals.chain.weekly += stats.weekly;
         }
       }
 
@@ -536,9 +536,9 @@ export async function generateReadmeNew(): Promise<string> {
 
       // 5. Calculate final overall monthly and weekly totals
       totals.total.monthly =
-        totals.web2.monthly + totals.web3.monthly + totals.utils.monthly;
+        totals.cloud.monthly + totals.chain.monthly + totals.utils.monthly;
       totals.total.weekly =
-        totals.web2.weekly + totals.web3.weekly + totals.utils.weekly;
+        totals.cloud.weekly + totals.chain.weekly + totals.utils.weekly;
     });
   } catch (error) {
     console.error("Failed to fetch data for README generation:", error);

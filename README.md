@@ -51,8 +51,8 @@ A Postgres Package Manager for Modular Postgres
 | Category | Total | Monthly | Weekly |
 | ------- | ------ | ------- | ----- |
 | **Total** | 98,558,676 | 4,387,699 | 1,055,418 |
-| Web2 | 36,899,470 | 2,372,502 | 551,959 |
-| Web3 | 57,437,060 | 1,357,462 | 325,382 |
+| Cloud | 36,899,470 | 2,372,502 | 551,959 |
+| Chain | 57,437,060 | 1,357,462 | 325,382 |
 | Utilities | 5,099,190 | 657,735 | 178,077 |
 
 
@@ -811,4 +811,4 @@ Let's build the future, together. 🚀
 
 
 
-<!-- README.md automatically generated on 2026-01-28T10:28:51.147Z from lib-count repository with latest download stats -->
+<!-- README.md automatically generated on 2026-01-28T11:25:33.656Z from lib-count repository with latest download stats -->

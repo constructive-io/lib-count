@@ -13,8 +13,8 @@ export interface CategoryStats extends DownloadStats {
 }
 
 export interface TotalStats {
-  web2: DownloadStats;
-  web3: DownloadStats;
+  cloud: DownloadStats;
+  chain: DownloadStats;
   utils: DownloadStats;
   total: DownloadStats;
   lifetime: number;

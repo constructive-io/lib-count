@@ -18,10 +18,9 @@ async function getPackageStats(
   // First, check the date range of available data for this package
   const dataRangeCheck = await dbClient.query(
     `
-    SELECT 
+    SELECT
       MIN(date) as oldest_date,
-      MAX(date) as latest_date,
-      CURRENT_DATE - MAX(date) as days_since_update
+      MAX(date) as latest_date
     FROM npm_count.daily_downloads
     WHERE package_name = $1
     GROUP BY package_name
@@ -29,37 +28,59 @@ async function getPackageStats(
     [packageName]
   );
 
-  // If no data found for this package, return null
-  if (dataRangeCheck.rows.length === 0) return null;
-
-  const latestDate = dataRangeCheck.rows[0].latest_date;
-  const daysSinceUpdate = parseInt(dataRangeCheck.rows[0].days_since_update);
-  const isStale = daysSinceUpdate > 7; // Consider data stale if more than 7 days old
-
-  // Adjust date ranges based on data availability
-  let weekStart, monthStart;
-
-  if (isStale) {
-    // If data is stale, use the last available week/month of data
-    weekStart = `'${latestDate}'::date - INTERVAL '7 days'`;
-    monthStart = `'${latestDate}'::date - INTERVAL '30 days'`;
-    console.log(
-      `Using historical data for ${packageName} (${daysSinceUpdate} days old)`
-    );
-  } else {
-    // Use current time periods if data is fresh
-    weekStart = "NOW() - INTERVAL '7 days'";
-    monthStart = "NOW() - INTERVAL '30 days'";
+  if (dataRangeCheck.rows.length === 0) {
+    return null;
   }
 
-  // Get download stats using appropriate date ranges
+  const { latest_date: db_latest_date_str } = dataRangeCheck.rows[0];
+
+  const clientNow = new Date();
+
+  let effectiveLatestDate: Date;
+  if (db_latest_date_str) {
+    const dbLatestDate = new Date(db_latest_date_str);
+    effectiveLatestDate = dbLatestDate > clientNow ? clientNow : dbLatestDate;
+  } else {
+    effectiveLatestDate = new Date("1970-01-01");
+  }
+  const effectiveLatestDateString = effectiveLatestDate
+    .toISOString()
+    .split("T")[0];
+
+  const daysSinceUpdate = Math.floor(
+    (clientNow.getTime() - effectiveLatestDate.getTime()) / (1000 * 3600 * 24)
+  );
+
+  const isStale = daysSinceUpdate > 7;
+
+  let weekStartDateString: string;
+  let monthStartDateString: string;
+
+  if (isStale) {
+    const weekStartDate = new Date(effectiveLatestDate);
+    weekStartDate.setDate(effectiveLatestDate.getDate() - 7);
+    weekStartDateString = weekStartDate.toISOString().split("T")[0];
+
+    const monthStartDate = new Date(effectiveLatestDate);
+    monthStartDate.setDate(effectiveLatestDate.getDate() - 30);
+    monthStartDateString = monthStartDate.toISOString().split("T")[0];
+  } else {
+    const weekStartDate = new Date(clientNow);
+    weekStartDate.setDate(clientNow.getDate() - 7);
+    weekStartDateString = weekStartDate.toISOString().split("T")[0];
+
+    const monthStartDate = new Date(clientNow);
+    monthStartDate.setDate(clientNow.getDate() - 30);
+    monthStartDateString = monthStartDate.toISOString().split("T")[0];
+  }
+
   const result = await dbClient.query(
     `
-    SELECT 
+    SELECT
       p.package_name,
       COALESCE(SUM(d.download_count), 0) as total_downloads,
-      COALESCE(SUM(CASE WHEN d.date >= ${monthStart} THEN d.download_count ELSE 0 END), 0) as monthly_downloads,
-      COALESCE(SUM(CASE WHEN d.date >= ${weekStart} THEN d.download_count ELSE 0 END), 0) as weekly_downloads
+      COALESCE(SUM(CASE WHEN d.date >= '${monthStartDateString}'::date ${isStale ? `AND d.date <= '${effectiveLatestDateString}'::date` : ""} THEN d.download_count ELSE 0 END), 0) as monthly_downloads,
+      COALESCE(SUM(CASE WHEN d.date >= '${weekStartDateString}'::date ${isStale ? `AND d.date <= '${effectiveLatestDateString}'::date` : ""} THEN d.download_count ELSE 0 END), 0) as weekly_downloads
     FROM npm_count.npm_package p
     LEFT JOIN npm_count.daily_downloads d ON d.package_name = p.package_name
     WHERE p.package_name = $1 AND p.is_active = true
@@ -70,24 +91,13 @@ async function getPackageStats(
 
   if (result.rows.length === 0) return null;
 
-  // Debug log to check if weekly data is being returned from the database
   const stats = {
     name: packageName,
     total: parseInt(result.rows[0].total_downloads),
     monthly: parseInt(result.rows[0].monthly_downloads),
     weekly: parseInt(result.rows[0].weekly_downloads),
   };
-
-  // Log for this package if it has non-zero downloads
-  if (stats.total > 0) {
-    console.log(`Package ${packageName} stats:`, {
-      total: stats.total,
-      monthly: stats.monthly,
-      weekly: stats.weekly,
-      isStale,
-    });
-  }
-
+  console.log(`[getPackageStats] Calculated stats for ${packageName}:`, stats);
   return stats;
 }
 
@@ -158,12 +168,12 @@ function generateTotalSection(totals: TotalStats): string {
 | *Total* | ${formatNumber(totals.total.total)} | ${formatNumber(
     totals.total.monthly
   )} | ${formatNumber(totals.total.weekly)} |
-| Web2 | ${formatNumber(totals.web2.total)} | ${formatNumber(
-    totals.web2.monthly
-  )} | ${formatNumber(totals.web2.weekly)} |
-| Web3 | ${formatNumber(totals.web3.total)} | ${formatNumber(
-    totals.web3.monthly
-  )} | ${formatNumber(totals.web3.weekly)} |
+| Cloud | ${formatNumber(totals.cloud.total)} | ${formatNumber(
+    totals.cloud.monthly
+  )} | ${formatNumber(totals.cloud.weekly)} |
+| Chain | ${formatNumber(totals.chain.total)} | ${formatNumber(
+    totals.chain.monthly
+  )} | ${formatNumber(totals.chain.weekly)} |
 | Utils | ${formatNumber(totals.utils.total)} | ${formatNumber(
     totals.utils.monthly
   )} | ${formatNumber(totals.utils.weekly)} |\n`;
@@ -221,6 +231,10 @@ async function getLifetimeDownloadsByCategory(
   }
 
   // Get all packages and their stats with adjusted date ranges
+  // Build the date bound condition for stale data
+  const monthDateBound = isDataStale ? ` AND d.date <= '${latestDate}'::date` : "";
+  const weekDateBound = isDataStale ? ` AND d.date <= '${latestDate}'::date` : "";
+
   const result = await dbClient.query(`
     WITH total_stats AS (
       SELECT COALESCE(SUM(download_count), 0) as total_lifetime_downloads
@@ -230,10 +244,11 @@ async function getLifetimeDownloadsByCategory(
       SELECT 
         p.package_name,
         COALESCE(SUM(d.download_count), 0) as total_downloads,
-        COALESCE(SUM(CASE WHEN d.date >= ${monthStart} THEN d.download_count ELSE 0 END), 0) as monthly_downloads,
-        COALESCE(SUM(CASE WHEN d.date >= ${weekStart} THEN d.download_count ELSE 0 END), 0) as weekly_downloads
+        COALESCE(SUM(CASE WHEN d.date >= ${monthStart}${monthDateBound} THEN d.download_count ELSE 0 END), 0) as monthly_downloads,
+        COALESCE(SUM(CASE WHEN d.date >= ${weekStart}${weekDateBound} THEN d.download_count ELSE 0 END), 0) as weekly_downloads
       FROM npm_count.npm_package p
       LEFT JOIN npm_count.daily_downloads d ON d.package_name = p.package_name
+      WHERE p.is_active = true
       GROUP BY p.package_name
     )
     SELECT 
@@ -464,10 +479,10 @@ async function generateBadges(
     `Weekly downloads: ${totals.total.weekly} (Badge: ${formatNumberForBadge(totals.total.weekly)}/week)`
   );
   console.log(
-    `Web3 downloads: ${totals.web3.total} (Badge: ${formatNumberForBadge(totals.web3.total)} downloads)`
+    `Chain downloads: ${totals.chain.total} (Badge: ${formatNumberForBadge(totals.chain.total)} downloads)`
   );
   console.log(
-    `Web2 downloads: ${totals.web2.total} (Badge: ${formatNumberForBadge(totals.web2.total)} downloads)`
+    `Cloud downloads: ${totals.cloud.total} (Badge: ${formatNumberForBadge(totals.cloud.total)} downloads)`
   );
   console.log(
     `Utils downloads: ${totals.utils.total} (Badge: ${formatNumberForBadge(totals.utils.total)} downloads)`
@@ -507,21 +522,24 @@ async function generateBadges(
   writeBadgeFile(libCountOutputDir, "weekly_downloads.json", weeklyDownloads);
 
   // Generate category badges with the correct colors from old implementation
-  // Web3 (cosmology) category badge
-  const web3Badge = createBadgeJson(
-    "Web3",
-    `${formatNumberForBadge(totals.web3.total)} downloads`,
+  // Chain (cosmology/hyperweb) category badge
+  const chainBadge = createBadgeJson(
+    "Chain",
+    `${formatNumberForBadge(totals.chain.total)} downloads`,
     "#A96DFF"
   );
-  writeBadgeFile(libCountOutputDir, "cosmology_category.json", web3Badge);
+  writeBadgeFile(libCountOutputDir, "cosmology_category.json", chainBadge);
+  writeBadgeFile(libCountOutputDir, "hyperweb_category.json", chainBadge);
 
-  // Web2 (launchql) category badge - fixing color from old implementation
-  const web2Badge = createBadgeJson(
-    "web2",
-    `${formatNumberForBadge(totals.web2.total)} downloads`,
-    "#01A1FF" // Adding # prefix for consistency
+  // Cloud (constructive) category badge - primary badge
+  const cloudBadge = createBadgeJson(
+    "Cloud",
+    `${formatNumberForBadge(totals.cloud.total)} downloads`,
+    "#01A1FF"
   );
-  writeBadgeFile(libCountOutputDir, "launchql_category.json", web2Badge);
+  writeBadgeFile(libCountOutputDir, "constructive_category.json", cloudBadge);
+  // Keep launchql_category.json as an alias for backwards compatibility
+  writeBadgeFile(libCountOutputDir, "launchql_category.json", cloudBadge);
 
   // Utils category badge
   const utilsBadge = createBadgeJson(
@@ -530,14 +548,6 @@ async function generateBadges(
     "#4EC428"
   );
   writeBadgeFile(libCountOutputDir, "utils_category.json", utilsBadge);
-
-  // Web3 category - using the web3 total since it's a synonym for all web3 packages
-  const hyperwebBadge = createBadgeJson(
-    "web3",
-    `${formatNumberForBadge(totals.web3.total)} downloads`,
-    "#A96DFF" // Using the same color as web3
-  );
-  writeBadgeFile(libCountOutputDir, "hyperweb_category.json", hyperwebBadge);
 
   // Generate per-product badges
   console.log("Generating per-product badges...");
@@ -606,8 +616,8 @@ async function generateReport(): Promise<string> {
   const db = new Database();
   const categoryStats = new Map<string, CategoryStats>();
   const totals: TotalStats = {
-    web2: { total: 0, monthly: 0, weekly: 0 },
-    web3: { total: 0, monthly: 0, weekly: 0 },
+    cloud: { total: 0, monthly: 0, weekly: 0 },
+    chain: { total: 0, monthly: 0, weekly: 0 },
     utils: { total: 0, monthly: 0, weekly: 0 },
     total: { total: 0, monthly: 0, weekly: 0 },
     lifetime: 0,
@@ -636,10 +646,10 @@ async function generateReport(): Promise<string> {
         // Update totals based on category
         const target =
           category === "launchql"
-            ? totals.web2
+            ? totals.cloud
             : category === "utils"
               ? totals.utils
-              : totals.web3;
+              : totals.chain;
 
         target.total += stats.total;
         target.monthly += stats.monthly;
@@ -649,9 +659,9 @@ async function generateReport(): Promise<string> {
       // Calculate final totals to match lifetime total
       totals.total.total = lifetimeStats.total;
       totals.total.monthly =
-        totals.web2.monthly + totals.web3.monthly + totals.utils.monthly;
+        totals.cloud.monthly + totals.chain.monthly + totals.utils.monthly;
       totals.total.weekly =
-        totals.web2.weekly + totals.web3.weekly + totals.utils.weekly;
+        totals.cloud.weekly + totals.chain.weekly + totals.utils.weekly;
 
       console.log("Final totals:", totals);
 
@@ -741,8 +751,8 @@ async function generateAndWriteBadges(): Promise<void> {
   const db = new Database();
   const categoryStats = new Map<string, CategoryStats>();
   const totals: TotalStats = {
-    web2: { total: 0, monthly: 0, weekly: 0 },
-    web3: { total: 0, monthly: 0, weekly: 0 },
+    cloud: { total: 0, monthly: 0, weekly: 0 },
+    chain: { total: 0, monthly: 0, weekly: 0 },
     utils: { total: 0, monthly: 0, weekly: 0 },
     total: { total: 0, monthly: 0, weekly: 0 },
     lifetime: 0,
@@ -786,10 +796,10 @@ async function generateAndWriteBadges(): Promise<void> {
         // Update totals based on category
         const target =
           category === "launchql"
-            ? totals.web2
+            ? totals.cloud
             : category === "utils"
               ? totals.utils
-              : totals.web3;
+              : totals.chain;
 
         target.total += stats.total;
         target.monthly += stats.monthly;
@@ -798,10 +808,10 @@ async function generateAndWriteBadges(): Promise<void> {
         console.log(`After adding ${category} - Target category now:`, {
           category:
             category === "launchql"
-              ? "web2"
+              ? "cloud"
               : category === "utils"
                 ? "utils"
-                : "web3",
+                : "chain",
           total: target.total,
           monthly: target.monthly,
           weekly: target.weekly,
@@ -811,20 +821,20 @@ async function generateAndWriteBadges(): Promise<void> {
       // Calculate final totals to match lifetime total
       totals.total.total = lifetimeStats.total;
       totals.total.monthly =
-        totals.web2.monthly + totals.web3.monthly + totals.utils.monthly;
+        totals.cloud.monthly + totals.chain.monthly + totals.utils.monthly;
       totals.total.weekly =
-        totals.web2.weekly + totals.web3.weekly + totals.utils.weekly;
+        totals.cloud.weekly + totals.chain.weekly + totals.utils.weekly;
 
       console.log("Final totals:", {
         "total.total": totals.total.total,
         "total.monthly": totals.total.monthly,
         "total.weekly": totals.total.weekly,
-        "web2.total": totals.web2.total,
-        "web2.monthly": totals.web2.monthly,
-        "web2.weekly": totals.web2.weekly,
-        "web3.total": totals.web3.total,
-        "web3.monthly": totals.web3.monthly,
-        "web3.weekly": totals.web3.weekly,
+        "cloud.total": totals.cloud.total,
+        "cloud.monthly": totals.cloud.monthly,
+        "cloud.weekly": totals.cloud.weekly,
+        "chain.total": totals.chain.total,
+        "chain.monthly": totals.chain.monthly,
+        "chain.weekly": totals.chain.weekly,
         "utils.total": totals.utils.total,
         "utils.monthly": totals.utils.monthly,
         "utils.weekly": totals.utils.weekly,
