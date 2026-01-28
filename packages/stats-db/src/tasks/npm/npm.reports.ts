@@ -38,11 +38,13 @@ async function getPackageStats(
 
   // Adjust date ranges based on data availability
   let weekStart, monthStart;
+  let dateBound = "";
 
   if (isStale) {
     // If data is stale, use the last available week/month of data
     weekStart = `'${latestDate}'::date - INTERVAL '7 days'`;
     monthStart = `'${latestDate}'::date - INTERVAL '30 days'`;
+    dateBound = ` AND d.date <= '${latestDate}'::date`;
     console.log(
       `Using historical data for ${packageName} (${daysSinceUpdate} days old)`
     );
@@ -58,8 +60,8 @@ async function getPackageStats(
     SELECT 
       p.package_name,
       COALESCE(SUM(d.download_count), 0) as total_downloads,
-      COALESCE(SUM(CASE WHEN d.date >= ${monthStart} THEN d.download_count ELSE 0 END), 0) as monthly_downloads,
-      COALESCE(SUM(CASE WHEN d.date >= ${weekStart} THEN d.download_count ELSE 0 END), 0) as weekly_downloads
+      COALESCE(SUM(CASE WHEN d.date >= ${monthStart}${dateBound} THEN d.download_count ELSE 0 END), 0) as monthly_downloads,
+      COALESCE(SUM(CASE WHEN d.date >= ${weekStart}${dateBound} THEN d.download_count ELSE 0 END), 0) as weekly_downloads
     FROM npm_count.npm_package p
     LEFT JOIN npm_count.daily_downloads d ON d.package_name = p.package_name
     WHERE p.package_name = $1 AND p.is_active = true
