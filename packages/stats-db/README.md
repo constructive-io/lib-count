@@ -109,7 +109,7 @@ Instead, do this:
 
 ```sh
 cd packages/stats-db-loaded
-psql stats_db < deploy/data.sql
+psql stats_dev < deploy/data.sql
 ```
 
 Now export `DATABASE_URL`:
