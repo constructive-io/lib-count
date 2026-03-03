@@ -558,6 +558,7 @@ export async function generateReadmeNew(): Promise<string> {
   readmeContent += readSnippet("rebrand-info.md");
   readmeContent += readSnippet("whats-next.md");
   readmeContent += readSnippet("thank-you.md");
+  readmeContent += readSnippet("understanding-downloads.md");
   readmeContent += generateTimestampComment(repoBaseName);
 
   return "\n" + readmeContent;
