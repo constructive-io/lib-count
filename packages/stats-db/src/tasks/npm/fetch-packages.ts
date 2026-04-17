@@ -39,17 +39,31 @@ async function updatePackageCategories(
   packageName: string,
   categoryIds: string[]
 ): Promise<void> {
-  await dbClient.query(
-    `DELETE FROM npm_count.package_category WHERE package_id = $1`,
-    [packageName]
-  );
+  // Delete old categories not in the new list
+  const placeholders = categoryIds.map((_, i) => `$${i + 2}`).join(", ");
+  if (categoryIds.length > 0) {
+    await dbClient.query(
+      `
+      DELETE FROM npm_count.package_category
+      WHERE package_id = $1 AND category_id NOT IN (${placeholders})
+      `,
+      [packageName, ...categoryIds]
+    );
+  } else {
+    await dbClient.query(
+      `DELETE FROM npm_count.package_category WHERE package_id = $1`,
+      [packageName]
+    );
+  }
 
+  // Insert or update categories with ON CONFLICT to handle duplicates
   if (categoryIds.length > 0) {
     const values = categoryIds.map((_, i) => `($1, $${i + 2})`).join(", ");
     await dbClient.query(
       `
       INSERT INTO npm_count.package_category (package_id, category_id)
       VALUES ${values}
+      ON CONFLICT (package_id, category_id) DO NOTHING
       `,
       [packageName, ...categoryIds]
     );
