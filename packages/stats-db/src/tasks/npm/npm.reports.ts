@@ -51,7 +51,7 @@ async function getPackageStats(
     (clientNow.getTime() - effectiveLatestDate.getTime()) / (1000 * 3600 * 24)
   );
 
-  const isStale = daysSinceUpdate > 7;
+  const isStale = true;
 
   let weekStartDateString: string;
   let monthStartDateString: string;
