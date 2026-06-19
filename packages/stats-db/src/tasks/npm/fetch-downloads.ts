@@ -16,8 +16,8 @@ import { delay } from "../../utils";
 const npmClient = new NPMApiClient();
 
 // Default configuration - can be overridden via options
-const DEFAULT_CONCURRENT_TASKS = 50; // Reduced from 200 to avoid rate limits
-const DEFAULT_RATE_LIMIT_DELAY = 200; // Increased from 50ms to 200ms
+const DEFAULT_CONCURRENT_TASKS = 2; // Reduced from 200 to avoid rate limits
+const DEFAULT_RATE_LIMIT_DELAY = 2500; // Increased from 50ms to 200ms
 const DEFAULT_CHUNK_SIZE = 30; // days per chunk
 const PACKAGE_WHITELIST = new Set([]);
 const USE_WHITELIST = PACKAGE_WHITELIST.size > 0;

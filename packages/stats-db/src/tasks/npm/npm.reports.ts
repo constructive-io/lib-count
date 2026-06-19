@@ -51,7 +51,7 @@ async function getPackageStats(
     (clientNow.getTime() - effectiveLatestDate.getTime()) / (1000 * 3600 * 24)
   );
 
-  const isStale = daysSinceUpdate > 7;
+  const isStale = true;
 
   let weekStartDateString: string;
   let monthStartDateString: string;
@@ -79,8 +79,8 @@ async function getPackageStats(
     SELECT
       p.package_name,
       COALESCE(SUM(d.download_count), 0) as total_downloads,
-      COALESCE(SUM(CASE WHEN d.date >= '${monthStartDateString}'::date ${isStale ? `AND d.date <= '${effectiveLatestDateString}'::date` : ""} THEN d.download_count ELSE 0 END), 0) as monthly_downloads,
-      COALESCE(SUM(CASE WHEN d.date >= '${weekStartDateString}'::date ${isStale ? `AND d.date <= '${effectiveLatestDateString}'::date` : ""} THEN d.download_count ELSE 0 END), 0) as weekly_downloads
+      COALESCE(SUM(CASE WHEN d.date >= '${monthStartDateString}'::date AND d.date <= '${effectiveLatestDateString}'::date THEN d.download_count ELSE 0 END), 0) as monthly_downloads,
+      COALESCE(SUM(CASE WHEN d.date >= '${weekStartDateString}'::date AND d.date <= '${effectiveLatestDateString}'::date THEN d.download_count ELSE 0 END), 0) as weekly_downloads
     FROM npm_count.npm_package p
     LEFT JOIN npm_count.daily_downloads d ON d.package_name = p.package_name
     WHERE p.package_name = $1 AND p.is_active = true
