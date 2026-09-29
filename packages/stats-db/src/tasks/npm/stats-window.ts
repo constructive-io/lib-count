@@ -10,7 +10,7 @@ import { CategoryStats, DownloadStats, PackageStats } from "../../types";
 // `NOW() - 7 days` instead, a different window again. Anything that reports a
 // weekly or monthly figure should go through here.
 //
-// Windows end on the latest date in the DB and span exactly WEEK_DAYS and
+// Windows end on the latest published day in the DB and span exactly WEEK_DAYS and
 // MONTH_DAYS days, matching npm's own `last-week` / `last-month` endpoints.
 //
 // npm outages: npm occasionally reports 0 for EVERY package on a day. Summed
@@ -35,12 +35,21 @@ export async function getStatsWindow(
   dbClient: PoolClient
 ): Promise<StatsWindow | null> {
   // Dates are formatted in SQL so no JS Date / timezone conversion is involved.
+  // The window ends on the latest day npm has actually published: a trailing day
+  // fetched before npm processed it is all zeros and must not count as "latest".
   const bounds = await dbClient.query(`
+    WITH latest AS (
+      SELECT MAX(date) AS day
+      FROM (
+        SELECT date FROM npm_count.daily_downloads
+        GROUP BY date HAVING SUM(download_count) > 0
+      ) published
+    )
     SELECT
-      to_char(MAX(date), 'YYYY-MM-DD') AS latest,
-      to_char(MAX(date) - ${WEEK_DAYS - 1}, 'YYYY-MM-DD') AS week_start,
-      to_char(MAX(date) - ${MONTH_DAYS - 1}, 'YYYY-MM-DD') AS month_start
-    FROM npm_count.daily_downloads
+      to_char(day, 'YYYY-MM-DD') AS latest,
+      to_char(day - ${WEEK_DAYS - 1}, 'YYYY-MM-DD') AS week_start,
+      to_char(day - ${MONTH_DAYS - 1}, 'YYYY-MM-DD') AS month_start
+    FROM latest
   `);
   const { latest, week_start, month_start } = bounds.rows[0] ?? {};
   if (!latest) return null;
@@ -132,12 +141,9 @@ export async function getAllPackageStats(
   return { packages, lifetimeTotal };
 }
 
-/**
- * One-line README note describing the windows and any outage adjustment.
- * Deliberately date-free: stored dates currently run one day behind npm's.
- */
+/** One-line README note describing the windows and any outage adjustment. */
 export function describeStatsWindow(window: StatsWindow): string {
-  const base = `_Weekly and monthly are the last ${WEEK_DAYS} and ${MONTH_DAYS} days of npm data._`;
+  const base = `_Weekly and monthly are the last ${WEEK_DAYS} and ${MONTH_DAYS} days of npm data, through ${window.latestDate}._`;
   const n = window.outageDates.length;
   if (n === 0) return base;
   return (
