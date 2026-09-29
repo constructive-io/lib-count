@@ -63,3 +63,9 @@ ORDER BY coverage_pct ASC;
    - This can happen if a fetch completed for some chunks but not all
    - Use `--backfill` to force a full scan regardless of `last_fetched_date`
 
+### Update Sep 28, 2026
+
+- **Zeros on recent days** used to become permanent: a day fetched before npm published it was stored as `0`, and past rows were insert-only. Every run now re-fetches the last 30 days and upserts them, never replacing a real count with `0`. If a day still shows `0` for every package after a later run, npm itself had an outage. The README excludes such days from the weekly and monthly windows and scales the remaining days up to the full period.
+- **Dates one day early:** see "Dates and the one-day offset fix" in the README (`pnpm npm:fix:date-offset`).
+- **One-day gaps were never fetched:** the chunker produced no request for a range of a single day. This is fixed and covered by `__tests__/date-chunks.test.ts`.
+
