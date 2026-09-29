@@ -42,9 +42,9 @@ A Postgres Package Manager for Modular Postgres
 | Category | Total | Monthly | Weekly |
 | ------- | ------ | ------- | ----- |
 | **Total** | 219,747,464 | 31,943,196 | 8,430,374 |
-| Cloud | 130,746,044 | 26,761,488 | 7,158,907 |
+| Cloud | 130,772,375 | 26,767,761 | 7,159,683 |
 | Chain | 68,957,713 | 1,993,601 | 476,934 |
-| Utilities | 20,042,030 | 3,188,107 | 794,533 |
+| Utilities | 20,015,699 | 3,181,834 | 793,757 |
 
 _Weekly and monthly are the last 7 and 30 days of npm data._ _npm reported zero downloads for every package on 5 of those 30 days (an npm-side outage); those days are excluded and the totals scaled to the full period._
 
@@ -390,7 +390,7 @@ Common issues and solutions for pgpm, PostgreSQL, and testing.
 
 | Name | Total | Monthly | Weekly |
 | ------- | ------ | ------- | ----- |
-| _Total_ | 1,050,625 | 123,836 | 15,243 |
+| _Total_ | 1,076,956 | 130,109 | 16,019 |
 | [graphile-pg-aggregates](https://www.npmjs.com/package/graphile-pg-aggregates) | 197,886 | 23,608 | 2,885 |
 | [graphile-bulk-mutations](https://www.npmjs.com/package/graphile-bulk-mutations) | 193,870 | 23,573 | 2,874 |
 | [@constructive-io/express-context](https://www.npmjs.com/package/@constructive-io/express-context) | 177,941 | 23,740 | 2,916 |
@@ -401,6 +401,9 @@ Common issues and solutions for pgpm, PostgreSQL, and testing.
 | [@constructive-io/noble-hashes](https://www.npmjs.com/package/@constructive-io/noble-hashes) | 8,691 | 140 | 31 |
 | [@constructive-io/send-verification-link-fn](https://www.npmjs.com/package/@constructive-io/send-verification-link-fn) | 8,522 | 191 | 51 |
 | [@constructive-io/send-email-fn](https://www.npmjs.com/package/@constructive-io/send-email-fn) | 8,456 | 199 | 47 |
+| [blocks-schema](https://www.npmjs.com/package/blocks-schema) | 8,139 | 2,214 | 243 |
+| [json-renderer](https://www.npmjs.com/package/json-renderer) | 7,752 | 1,938 | 243 |
+| [blocks-renderer](https://www.npmjs.com/package/blocks-renderer) | 7,661 | 1,816 | 243 |
 | [@interweb/casing](https://www.npmjs.com/package/@interweb/casing) | 5,800 | 120 | 37 |
 | [@interweb-utils/casing](https://www.npmjs.com/package/@interweb-utils/casing) | 5,676 | 67 | 11 |
 | [@pgpm/object-store](https://www.npmjs.com/package/@pgpm/object-store) | 5,142 | 1,174 | 97 |
@@ -415,7 +418,7 @@ Common issues and solutions for pgpm, PostgreSQL, and testing.
 | [@constructive-io/sheets](https://www.npmjs.com/package/@constructive-io/sheets) | 2,409 | 274 | 61 |
 | [@interweb/find-pkg](https://www.npmjs.com/package/@interweb/find-pkg) | 1,680 | 36 | 2 |
 | [@fbp/evaluator](https://www.npmjs.com/package/@fbp/evaluator) | 1,062 | 104 | 28 |
-| *40 packages hidden (< 1,000 downloads)* | | | |
+| *44 packages hidden (< 1,000 downloads)* | | | |
 
 ### kubernetesjs
 
@@ -1091,4 +1094,4 @@ AS DESCRIBED IN THE LICENSES, THE SOFTWARE IS PROVIDED "AS IS", AT YOUR OWN RISK
 No developer or entity involved in creating this software will be liable for any claims or damages whatsoever associated with your use, inability to use, or your interaction with other users of the code, including any direct, indirect, incidental, special, exemplary, punitive or consequential damages, or loss of profits, cryptocurrencies, tokens, or anything else of value.
 
 
-<!-- README.md automatically generated on 2026-09-28T23:53:06.042Z from lib-count repository with latest download stats -->
+<!-- README.md automatically generated on 2026-09-29T00:02:09.164Z from lib-count repository with latest download stats -->
