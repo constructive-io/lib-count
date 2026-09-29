@@ -204,51 +204,33 @@ export async function insertDailyDownloads(
   packageName: string,
   downloads: DailyDownload[]
 ): Promise<void> {
-  // Get today's date normalized to UTC midnight
-  const today = new Date();
-  today.setUTCHours(0, 0, 0, 0);
-  const todayStr = today.toISOString().split('T')[0];
-
-  // Separate downloads into today's and past data
-  const todaysDownloads: DailyDownload[] = [];
-  const pastDownloads: DailyDownload[] = [];
-
-  for (const download of downloads) {
-    const downloadDateStr = download.date.toISOString().split('T')[0];
-    if (downloadDateStr === todayStr) {
-      todaysDownloads.push(download);
-    } else {
-      pastDownloads.push(download);
-    }
-  }
-
-  // For today's data: allow updates (upsert)
-  const upsertQuery = `
+  // Dates are sent as 'YYYY-MM-DD' strings, never JS Dates. node-postgres
+  // serializes a Date in the machine's local timezone, so on a US machine npm's
+  // day (UTC midnight) arrived as the previous evening and ::date stored it one
+  // day early.
+  //
+  // Upsert, but never replace a real count with 0. npm returns 0 for a day it
+  // has not published yet (so a fresh 0 must be correctable on the next run),
+  // and occasionally re-reports an already-published day as 0 (which must not
+  // wipe the real number we stored).
+  const query = `
     INSERT INTO npm_count.daily_downloads
       (package_name, date, download_count)
-    VALUES ($1, $2, $3)
+    VALUES ($1, $2::date, $3)
     ON CONFLICT (package_name, date)
-    DO UPDATE SET
-      download_count = EXCLUDED.download_count;
+    DO UPDATE SET download_count = EXCLUDED.download_count
+    WHERE EXCLUDED.download_count > 0;
   `;
 
-  // For past data: only insert if not exists (immutable)
-  const insertOnlyQuery = `
-    INSERT INTO npm_count.daily_downloads
-      (package_name, date, download_count)
-    VALUES ($1, $2, $3)
-    ON CONFLICT (package_name, date)
-    DO NOTHING;
-  `;
-
-  await Promise.all([
-    ...todaysDownloads.map((download) =>
-      client.query(upsertQuery, [packageName, download.date, download.downloadCount])
-    ),
-    ...pastDownloads.map((download) =>
-      client.query(insertOnlyQuery, [packageName, download.date, download.downloadCount])
-    ),
-  ]);
+  await Promise.all(
+    downloads.map((download) =>
+      client.query(query, [
+        packageName,
+        download.date.toISOString().split("T")[0],
+        download.downloadCount,
+      ])
+    )
+  );
 }
 
 export async function updateLastFetchedDate(
@@ -321,8 +303,10 @@ export async function getExistingDownloadDates(
   client: PoolClient,
   packageName: string
 ): Promise<Set<string>> {
+  // Formatted in SQL: node-postgres parses a DATE into local midnight, which
+  // toISOString() shifts to the previous day in any timezone east of UTC.
   const query = `
-    SELECT date
+    SELECT to_char(date, 'YYYY-MM-DD') AS date
     FROM npm_count.daily_downloads
     WHERE package_name = $1
     ORDER BY date ASC;
@@ -330,9 +314,7 @@ export async function getExistingDownloadDates(
 
   const result = await client.query(query, [packageName]);
 
-  return new Set(
-    result.rows.map((row) => row.date.toISOString().split('T')[0])
-  );
+  return new Set(result.rows.map((row) => row.date));
 }
 
 export async function getPackagesWithMissingDates(
