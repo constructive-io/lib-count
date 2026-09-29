@@ -9,13 +9,14 @@ import {
   readmeCategoryDisplayName,
   brandRollupFor,
 } from "../../config";
+import { CategoryStats, TotalStats } from "../../types";
 import {
-  DownloadStats,
-  PackageStats,
-  CategoryStats,
-  LifetimeStats,
-  TotalStats,
-} from "../../types";
+  getStatsWindow,
+  getAllPackageStats,
+  getCategoryStats,
+  getUncategorizedPackages,
+  describeStatsWindow,
+} from "./stats-window";
 
 function formatNumber(num: number): string {
   return num.toLocaleString();
@@ -27,241 +28,9 @@ function readSnippet(filename: string): string {
   return fs.readFileSync(path.join(SNIPPETS_DIR, filename), "utf-8");
 }
 
-async function getPackageStats(
-  dbClient: PoolClient,
-  packageName: string
-): Promise<PackageStats | null> {
-  const dataRangeCheck = await dbClient.query(
-    `
-    SELECT
-      MIN(date) as oldest_date,
-      MAX(date) as latest_date
-    FROM npm_count.daily_downloads
-    WHERE package_name = $1
-    GROUP BY package_name
-    `,
-    [packageName]
-  );
-
-  if (dataRangeCheck.rows.length === 0) {
-    return null;
-  }
-
-  const { oldest_date, latest_date: db_latest_date_str } =
-    dataRangeCheck.rows[0];
-
-  const clientNow = new Date();
-  const clientNowDateString = clientNow.toISOString().split("T")[0];
-
-  let effectiveLatestDate: Date;
-  if (db_latest_date_str) {
-    const dbLatestDate = new Date(db_latest_date_str);
-    effectiveLatestDate = dbLatestDate > clientNow ? clientNow : dbLatestDate;
-  } else {
-    // No data for package, treat as very old, though dataRangeCheck should prevent this.
-    // Fallback to a very old date if db_latest_date_str is null/undefined for some reason.
-    effectiveLatestDate = new Date("1970-01-01");
-  }
-  const effectiveLatestDateString = effectiveLatestDate
-    .toISOString()
-    .split("T")[0];
-
-  const daysSinceUpdate = Math.floor(
-    (clientNow.getTime() - effectiveLatestDate.getTime()) / (1000 * 3600 * 24)
-  );
-
-  const isStale = true;
-
-  let weekStartDateString: string;
-  let monthStartDateString: string;
-
-  if (isStale) {
-    const weekStartDate = new Date(effectiveLatestDate);
-    weekStartDate.setDate(effectiveLatestDate.getDate() - 7);
-    weekStartDateString = weekStartDate.toISOString().split("T")[0];
-
-    const monthStartDate = new Date(effectiveLatestDate);
-    monthStartDate.setDate(effectiveLatestDate.getDate() - 30); // Approx month
-    monthStartDateString = monthStartDate.toISOString().split("T")[0];
-  } else {
-    const weekStartDate = new Date(clientNow);
-    weekStartDate.setDate(clientNow.getDate() - 7);
-    weekStartDateString = weekStartDate.toISOString().split("T")[0];
-
-    const monthStartDate = new Date(clientNow);
-    monthStartDate.setDate(clientNow.getDate() - 30); // Approx month
-    monthStartDateString = monthStartDate.toISOString().split("T")[0];
-  }
-
-  const result = await dbClient.query(
-    `
-    SELECT
-      p.package_name,
-      COALESCE(SUM(d.download_count), 0) as total_downloads,
-      COALESCE(SUM(CASE WHEN d.date >= '${monthStartDateString}'::date AND d.date <= '${effectiveLatestDateString}'::date THEN d.download_count ELSE 0 END), 0) as monthly_downloads,
-      COALESCE(SUM(CASE WHEN d.date >= '${weekStartDateString}'::date AND d.date <= '${effectiveLatestDateString}'::date THEN d.download_count ELSE 0 END), 0) as weekly_downloads
-    FROM npm_count.npm_package p
-    LEFT JOIN npm_count.daily_downloads d ON d.package_name = p.package_name
-    WHERE p.package_name = $1 AND p.is_active = true
-    GROUP BY p.package_name
-    `,
-    [packageName]
-  );
-
-  if (result.rows.length === 0) return null;
-
-  const stats = {
-    name: packageName,
-    total: parseInt(result.rows[0].total_downloads),
-    monthly: parseInt(result.rows[0].monthly_downloads),
-    weekly: parseInt(result.rows[0].weekly_downloads),
-  };
-  console.log(`[getPackageStats] Calculated stats for ${packageName}:`, stats);
-  return stats;
-}
-
-async function getCategoryStats(
-  dbClient: PoolClient,
-  category: string,
-  packageNames: string[]
-): Promise<CategoryStats> {
-  const packageStats: PackageStats[] = [];
-  const totalStats: DownloadStats = { total: 0, monthly: 0, weekly: 0 };
-
-  for (const packageName of packageNames) {
-    const stats = await getPackageStats(dbClient, packageName);
-    if (stats) {
-      packageStats.push(stats);
-      totalStats.total += stats.total;
-      totalStats.monthly += stats.monthly;
-      totalStats.weekly += stats.weekly;
-    }
-  }
-
-  return {
-    ...totalStats,
-    packages: packageStats.sort((a, b) => b.total - a.total),
-  };
-}
-
-async function getLifetimeDownloadsByCategory(
-  dbClient: PoolClient
-): Promise<LifetimeStats> {
-  const clientNow = new Date();
-  const clientNowDateString = clientNow.toISOString().split("T")[0];
-
-  // Get the overall MAX(date) from the database
-  const overallMaxDateQuery = await dbClient.query(`
-    SELECT MAX(date) as overall_max_db_date FROM npm_count.daily_downloads;
-  `);
-
-  let effectiveLatestDate: Date;
-  let overallMaxDbDateStr: string | null = null;
-
-  if (
-    overallMaxDateQuery.rows.length > 0 &&
-    overallMaxDateQuery.rows[0].overall_max_db_date
-  ) {
-    overallMaxDbDateStr = overallMaxDateQuery.rows[0].overall_max_db_date;
-    const overallMaxDbDate = new Date(overallMaxDbDateStr);
-    effectiveLatestDate =
-      overallMaxDbDate > clientNow ? clientNow : overallMaxDbDate;
-  } else {
-    // No data in table, treat as very old.
-    effectiveLatestDate = new Date("1970-01-01");
-  }
-  const effectiveLatestDateString = effectiveLatestDate
-    .toISOString()
-    .split("T")[0];
-
-  const daysSinceUpdate = Math.floor(
-    (clientNow.getTime() - effectiveLatestDate.getTime()) / (1000 * 3600 * 24)
-  );
-  const isStale = true;
-
-  let weekStartDateString: string;
-  let monthStartDateString: string;
-
-  if (isStale) {
-    const weekStartDate = new Date(effectiveLatestDate);
-    weekStartDate.setDate(effectiveLatestDate.getDate() - 7);
-    weekStartDateString = weekStartDate.toISOString().split("T")[0];
-
-    const monthStartDate = new Date(effectiveLatestDate);
-    monthStartDate.setDate(effectiveLatestDate.getDate() - 30); // Approx month
-    monthStartDateString = monthStartDate.toISOString().split("T")[0];
-  } else {
-    const weekStartDate = new Date(clientNow);
-    weekStartDate.setDate(clientNow.getDate() - 7);
-    weekStartDateString = weekStartDate.toISOString().split("T")[0];
-
-    const monthStartDate = new Date(clientNow);
-    monthStartDate.setDate(clientNow.getDate() - 30); // Approx month
-    monthStartDateString = monthStartDate.toISOString().split("T")[0];
-  }
-
-  const result = await dbClient.query(`
-    WITH total_stats AS (
-      SELECT COALESCE(SUM(download_count), 0) as total_lifetime_downloads
-      FROM npm_count.daily_downloads
-    ),
-    package_stats AS (
-      SELECT
-        p.package_name,
-        COALESCE(SUM(d.download_count), 0) as total_downloads,
-        COALESCE(SUM(CASE WHEN d.date >= '${monthStartDateString}'::date AND d.date <= '${effectiveLatestDateString}'::date THEN d.download_count ELSE 0 END), 0) as monthly_downloads,
-        COALESCE(SUM(CASE WHEN d.date >= '${weekStartDateString}'::date AND d.date <= '${effectiveLatestDateString}'::date THEN d.download_count ELSE 0 END), 0) as weekly_downloads
-      FROM npm_count.npm_package p
-      LEFT JOIN npm_count.daily_downloads d ON d.package_name = p.package_name
-      WHERE p.is_active = true
-      GROUP BY p.package_name
-    )
-    SELECT
-      ps.*,
-      t.total_lifetime_downloads
-    FROM package_stats ps
-    CROSS JOIN total_stats t;
-  `);
-
-  let totalLifetimeDownloads = 0;
-  const allPackages = new Map<string, PackageStats>();
-
-  result.rows.forEach((row, index) => {
-    if (index === 0) {
-      totalLifetimeDownloads = parseInt(row.total_lifetime_downloads);
-    }
-    allPackages.set(row.package_name, {
-      name: row.package_name,
-      total: parseInt(row.total_downloads || "0"),
-      monthly: parseInt(row.monthly_downloads || "0"),
-      weekly: parseInt(row.weekly_downloads || "0"),
-    });
-  });
-
-  const categorizedPackagesSet = new Set<string>();
-  Object.values(packages).forEach((pkgList) =>
-    pkgList.forEach((pkg) => categorizedPackagesSet.add(pkg))
-  );
-
-  const uncategorizedPackages: PackageStats[] = [];
-  for (const [packageName, stats] of allPackages) {
-    if (!categorizedPackagesSet.has(packageName)) {
-      uncategorizedPackages.push(stats);
-    }
-  }
-
-  return {
-    total: totalLifetimeDownloads,
-    byCategory: {}, // This was not fully populated in original, keeping simple
-    uncategorizedPackages: uncategorizedPackages.sort(
-      (a, b) => b.total - a.total
-    ),
-  };
-}
-
 // --- README Generation specific functions ---
 
-function generateOverallStatsTable(totals: TotalStats): string {
+function generateOverallStatsTable(totals: TotalStats, windowNote: string): string {
   const lines = [
     `## Overall Download Statistics\n`,
     "| Category | Total | Monthly | Weekly |",
@@ -271,7 +40,7 @@ function generateOverallStatsTable(totals: TotalStats): string {
     `| Chain | ${formatNumber(totals.chain.total)} | ${formatNumber(totals.chain.monthly)} | ${formatNumber(totals.chain.weekly)} |`,
     `| Utilities | ${formatNumber(totals.utils.total)} | ${formatNumber(totals.utils.monthly)} | ${formatNumber(totals.utils.weekly)} |`,
   ];
-  return lines.join("\n") + "\n\n"; // Ensure blank line after the table
+  return lines.join("\n") + "\n\n" + windowNote + "\n\n";
 }
 
 function generateBadgesSection(repoName: string): string {
@@ -287,9 +56,6 @@ function generateBadgesSection(repoName: string): string {
   );
   const encodedConstructiveCategoryUrl = encodeURIComponent(
     `${rawBaseRepoUrl}constructive_category.json`
-  );
-  const encodedHyperwebCategoryUrl = encodeURIComponent(
-    `${rawBaseRepoUrl}hyperweb_category.json`
   );
   const encodedUtilsCategoryUrl = encodeURIComponent(
     `${rawBaseRepoUrl}utils_category.json`
@@ -312,14 +78,24 @@ function generateBadgesSection(repoName: string): string {
       <img height="20" src="https://img.shields.io/endpoint?url=${encodedConstructiveCategoryUrl}"/>
    </a>
    <a href="https://github.com/${repoName}">
-      <img height="20" src="https://img.shields.io/endpoint?url=${encodedHyperwebCategoryUrl}"/>
-   </a>
-   <a href="https://github.com/${repoName}">
       <img height="20" src="https://img.shields.io/endpoint?url=${encodedUtilsCategoryUrl}"/>
    </a>
 </p>
 
 `; // Ensured two newlines at the end to create a blank line before the next section
+}
+
+function generateHyperwebBadge(repoName: string): string {
+  const url = encodeURIComponent(
+    `https://raw.githubusercontent.com/${repoName}/main/output/badges/hyperweb_category.json`
+  );
+  return `
+<p>
+   <a href="https://github.com/${repoName}">
+      <img height="20" src="https://img.shields.io/endpoint?url=${url}"/>
+   </a>
+</p>
+`;
 }
 
 function generateToolsTable(
@@ -373,18 +149,30 @@ function categoryHasVisiblePackages(categoryData: CategoryStats): boolean {
   return categoryData.packages.some((pkg) => pkg.total >= MIN_DOWNLOADS_THRESHOLD);
 }
 
-function generateCategorySections(categoryStatsMap: Map<string, CategoryStats>): string {
-  const categoryKeys = getSortedVisibleCategories();
-
-  // Filter to only categories with at least one visible package
-  const visibleCategoryKeys = categoryKeys.filter((categoryName) => {
+// Visible categories split into the two README groups. Hyperweb (the Chain
+// rollup) is rendered as its own block at the bottom of the README, after all
+// the Constructive / Cloud / Utilities content.
+function getVisibleCategoryGroups(
+  categoryStatsMap: Map<string, CategoryStats>
+): { constructive: string[]; hyperweb: string[] } {
+  const visible = getSortedVisibleCategories().filter((categoryName) => {
     const categoryData = categoryStatsMap.get(categoryName);
     return categoryData && categoryHasVisiblePackages(categoryData);
   });
+  return {
+    constructive: visible.filter((key) => brandRollupFor(key) !== "chain"),
+    hyperweb: visible.filter((key) => brandRollupFor(key) === "chain"),
+  };
+}
 
-  const anchors = buildAnchorMap(visibleCategoryKeys);
-  let content = generateToc(visibleCategoryKeys, anchors);
-  for (const categoryName of visibleCategoryKeys) {
+function generateCategorySections(
+  title: string,
+  categoryKeys: string[],
+  anchors: Map<string, string>,
+  categoryStatsMap: Map<string, CategoryStats>
+): string {
+  let content = generateToc(title, categoryKeys, anchors);
+  for (const categoryName of categoryKeys) {
     const categoryData = categoryStatsMap.get(categoryName);
     if (categoryData) {
       content += generateCategoryTableSection(categoryName, categoryData);
@@ -395,8 +183,8 @@ function generateCategorySections(categoryStatsMap: Map<string, CategoryStats>):
 
 // Anchors for the generated category sections.
 //
-// The static intro snippet already contains `### Constructive` and `### PGPM`
-// brand blurbs. When a category's display name matches one of those, GitHub sees
+// The static snippets already contain brand headings (`### Constructive` and
+// `### PGPM` in intro.md). When a category's display name matches one of those, GitHub sees
 // two identical headings and suffixes the second anchor ("#constructive-1"), so a
 // naive slug would link the Table of Contents at the brand blurb instead of the
 // package table. Mirror GitHub's rule rather than guessing.
@@ -407,22 +195,22 @@ function slugifyHeading(text: string): string {
     .replace(/[^a-z0-9-]/g, "");
 }
 
-function headingsInIntro(): string[] {
-  try {
-    const introPath = path.resolve(__dirname, "../readme-snippets/intro.md");
-    return fs
-      .readFileSync(introPath, "utf8")
-      .split("\n")
-      .filter((l) => l.startsWith("### "))
-      .map((l) => l.replace(/^###\s+/, "").trim());
-  } catch {
-    return [];
-  }
+function headingsInSnippets(): string[] {
+  return ["intro.md", "hyperweb-intro.md"].flatMap((filename) => {
+    try {
+      return readSnippet(filename)
+        .split("\n")
+        .filter((l) => /^#{1,6}\s/.test(l))
+        .map((l) => l.replace(/^#{1,6}\s+/, "").trim());
+    } catch {
+      return [];
+    }
+  });
 }
 
 function buildAnchorMap(categoryKeys: string[]): Map<string, string> {
   const seen = new Map<string, number>();
-  for (const heading of headingsInIntro()) {
+  for (const heading of headingsInSnippets()) {
     const slug = slugifyHeading(heading);
     seen.set(slug, (seen.get(slug) ?? 0) + 1);
   }
@@ -437,10 +225,11 @@ function buildAnchorMap(categoryKeys: string[]): Map<string, string> {
 }
 
 function generateToc(
+  title: string,
   packageCategories: string[],
   anchors: Map<string, string>
 ): string {
-  const tocTitle = "## Table of Contents\n\n";
+  const tocTitle = `## ${title}\n\n`;
   const tocItems = packageCategories.map((categoryName) => {
     // Link text and anchor both come from the display name, so the anchor keeps
     // matching the heading GitHub generates from it.
@@ -540,22 +329,25 @@ export async function generateReadmeNew(): Promise<string> {
   }
 
   const personalTotals = { total: 0, monthly: 0, weekly: 0 };
+  let windowNote = "";
 
   try {
     await db.withTransaction(async (dbClient: PoolClient) => {
-      // 1. Fetch lifetime statistics
-      const lifetimeStats = await getLifetimeDownloadsByCategory(dbClient);
-      totals.lifetime = lifetimeStats.total;
+      // 1. Per-package lifetime / weekly / monthly stats (shared windows)
+      const window = await getStatsWindow(dbClient);
+      if (!window) throw new Error("No download data in npm_count.daily_downloads");
+      windowNote = describeStatsWindow(window);
+      const { packages: allPackages, lifetimeTotal } = await getAllPackageStats(
+        dbClient,
+        window
+      );
+      totals.lifetime = lifetimeTotal;
       // Set the grand total for downloads (all-time)
-      totals.total.total = lifetimeStats.total;
+      totals.total.total = lifetimeTotal;
 
-      // 2. Fetch and process category-specific statistics
+      // 2. Group into categories
       for (const [categoryKey, packageNames] of Object.entries(packages)) {
-        const stats = await getCategoryStats(
-          dbClient,
-          categoryKey,
-          packageNames
-        );
+        const stats = getCategoryStats(allPackages, packageNames);
         categoryStatsMap.set(categoryKey, stats);
 
         // 3. Aggregate into the brand rollups (shared classifier — see config)
@@ -574,7 +366,7 @@ export async function generateReadmeNew(): Promise<string> {
       }
 
       // 4. Add uncategorized packages to the utils category totals
-      for (const pkg of lifetimeStats.uncategorizedPackages) {
+      for (const pkg of getUncategorizedPackages(allPackages, packages)) {
         totals.utils.total += pkg.total;
         totals.utils.monthly += pkg.monthly;
         totals.utils.weekly += pkg.weekly;
@@ -601,15 +393,34 @@ export async function generateReadmeNew(): Promise<string> {
     return "# Hyperweb\n\nError generating README content.";
   }
 
-  // Assemble README sections
+  // Assemble README sections. Everything Hyperweb lives in one block at the
+  // bottom, just above the closing thank-you / downloads / disclaimer snippets.
+  const groups = getVisibleCategoryGroups(categoryStatsMap);
+  // Anchors are built in document order so GitHub's duplicate-heading suffixes line up.
+  const anchors = buildAnchorMap([...groups.constructive, ...groups.hyperweb]);
+
   readmeContent += generateBadgesSection(repoName);
   readmeContent += readSnippet("intro.md");
-  readmeContent += generateOverallStatsTable(totals);
+  readmeContent += generateOverallStatsTable(totals, windowNote);
   readmeContent += readSnippet("database-stack-intro.md");
   readmeContent += readSnippet("database-tooling.md");
-  readmeContent += readSnippet("interchain-stack-intro.md");
+  readmeContent += "\n---\n\n";
+  readmeContent += generateCategorySections(
+    "Table of Contents",
+    groups.constructive,
+    anchors,
+    categoryStatsMap
+  );
+  readmeContent += readSnippet("hyperweb-intro.md");
+  readmeContent += generateHyperwebBadge(repoName);
   readmeContent += generateToolsTable(repoName, categoryStatsMap);
-  readmeContent += generateCategorySections(categoryStatsMap);
+  readmeContent += "\n";
+  readmeContent += generateCategorySections(
+    "Hyperweb Packages",
+    groups.hyperweb,
+    anchors,
+    categoryStatsMap
+  );
   readmeContent += readSnippet("stack-announcement.md");
   readmeContent += readSnippet("rebrand-info.md");
   readmeContent += readSnippet("whats-next.md");
