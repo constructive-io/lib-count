@@ -4,6 +4,7 @@ import { execute as fetchDownloads } from "./fetch-downloads";
 import { generateReport, generateAndWriteBadges } from "./npm.reports";
 import { generateAndWriteReadme } from "./npm.gen-readme";
 import { listMiscPackages, syncCategories } from "./npm.categories";
+import { fixDateOffset } from "./fix-date-offset";
 import * as fs from "fs";
 import * as path from "path";
 
@@ -12,6 +13,7 @@ interface CommandOptions {
   rateLimitDelay?: number;
   chunkSize?: number;
   backfill?: boolean;
+  dryRun?: boolean;
 }
 
 function parseCommandOptions(args: string[]): CommandOptions {
@@ -28,6 +30,8 @@ function parseCommandOptions(args: string[]): CommandOptions {
       options.chunkSize = parseInt(args[++i], 10);
     } else if (arg === '--backfill' || arg === '-b') {
       options.backfill = true;
+    } else if (arg === '--dry-run') {
+      options.dryRun = true;
     }
   }
 
@@ -78,6 +82,11 @@ async function runCommand(command: string, options: CommandOptions = {}): Promis
       break;
     }
 
+    case "fix:date-offset": {
+      await fixDateOffset({ dryRun: options.dryRun });
+      break;
+    }
+
     default:
       console.error(`Unknown command: ${command}`);
       process.exit(1);
@@ -90,7 +99,7 @@ if (require.main === module) {
 
   if (!command) {
     console.error(
-      "Please provide a command: fetch:packages, fetch:downloads, generate:report, generate:badges, generate:readme, categories:list-misc, or categories:sync"
+      "Please provide a command: fetch:packages, fetch:downloads, generate:report, generate:badges, generate:readme, categories:list-misc, categories:sync, or fix:date-offset"
     );
     console.error("\nCommands:");
     console.error("  fetch:packages         Fetch packages from npm registry");
@@ -100,6 +109,7 @@ if (require.main === module) {
     console.error("  generate:readme        Generate README file");
     console.error("  categories:list-misc   List uncategorized packages (in misc category)");
     console.error("  categories:sync        Sync categories from config to database");
+    console.error("  fix:date-offset        One-time repair: shift dates stored one day early (--dry-run to check only)");
     console.error("\nOptions for fetch:downloads:");
     console.error("  --concurrent, -c <num>   Number of concurrent package downloads (default: 50)");
     console.error("  --delay, -d <ms>         Delay between requests in milliseconds (default: 200)");

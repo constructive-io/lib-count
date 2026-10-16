@@ -12,6 +12,7 @@ import {
   getExistingDownloadDates,
 } from "./npm.queries";
 import { delay } from "../../utils";
+import { DateRange, normalizeDate, getMissingDateChunks } from "./date-chunks";
 
 const npmClient = new NPMApiClient();
 
@@ -30,10 +31,6 @@ let CONCURRENT_TASKS = DEFAULT_CONCURRENT_TASKS;
 let RATE_LIMIT_DELAY = DEFAULT_RATE_LIMIT_DELAY;
 let CHUNK_SIZE = DEFAULT_CHUNK_SIZE;
 
-interface DateRange {
-  start: Date;
-  end: Date;
-}
 
 function is429Error(error: unknown): boolean {
   return (
@@ -47,99 +44,6 @@ function is429Error(error: unknown): boolean {
 interface PackageInfo {
   packageName: string;
   creationDate: Date;
-}
-
-function normalizeDate(date: Date): Date {
-  const normalized = new Date(date);
-  normalized.setUTCHours(0, 0, 0, 0);
-  return normalized;
-}
-
-function getDateChunks(startDate: Date, endDate: Date): DateRange[] {
-  const chunks: DateRange[] = [];
-  let currentStart = normalizeDate(startDate);
-  const finalEndDate = normalizeDate(
-    new Date(Math.min(endDate.getTime(), new Date().getTime()))
-  );
-
-  while (currentStart < finalEndDate) {
-    // Create a new chunk
-    const chunkEnd = new Date(currentStart);
-    chunkEnd.setUTCDate(chunkEnd.getUTCDate() + CHUNK_SIZE - 1);
-
-    // Ensure we don't go past the final end date
-    const actualEnd = chunkEnd > finalEndDate ? finalEndDate : chunkEnd;
-
-    chunks.push({
-      start: new Date(currentStart),
-      end: new Date(actualEnd),
-    });
-
-    // Move to next chunk
-    currentStart = new Date(actualEnd);
-    currentStart.setUTCDate(currentStart.getUTCDate() + 1);
-  }
-
-  return chunks;
-}
-
-function getMissingDateChunks(
-  startDate: Date,
-  endDate: Date,
-  existingDates: Set<string>
-): DateRange[] {
-  const chunks: DateRange[] = [];
-  let currentStart: Date | null = null;
-  let current = normalizeDate(startDate);
-  const finalEndDate = normalizeDate(
-    new Date(Math.min(endDate.getTime(), new Date().getTime()))
-  );
-  const todayStr = finalEndDate.toISOString().split('T')[0];
-
-  // Include today in the check to ensure we fetch it (for updates)
-  while (current <= finalEndDate) {
-    const dateStr = current.toISOString().split('T')[0];
-    // Today is always considered "missing" so we can update it
-    const isMissing = !existingDates.has(dateStr) || dateStr === todayStr;
-
-    if (isMissing) {
-      // Start or continue a missing range
-      if (currentStart === null) {
-        currentStart = new Date(current);
-      }
-    } else {
-      // If we were tracking a missing range, save it
-      if (currentStart !== null) {
-        const prevDay = new Date(current);
-        prevDay.setUTCDate(prevDay.getUTCDate() - 1);
-        chunks.push({
-          start: currentStart,
-          end: prevDay,
-        });
-        currentStart = null;
-      }
-    }
-
-    // Move to next day
-    current.setUTCDate(current.getUTCDate() + 1);
-  }
-
-  // Close any open range
-  if (currentStart !== null) {
-    chunks.push({
-      start: currentStart,
-      end: new Date(finalEndDate),
-    });
-  }
-
-  // Split large chunks into smaller ones for better progress tracking
-  const splitChunks: DateRange[] = [];
-  for (const chunk of chunks) {
-    const subChunks = getDateChunks(chunk.start, chunk.end);
-    splitChunks.push(...subChunks);
-  }
-
-  return splitChunks;
 }
 
 function formatDateRange(range: DateRange): string {
@@ -243,8 +147,13 @@ async function processPackageDownloads(
         existingDates = await getExistingDownloadDates(dbClient, packageName);
       });
 
-      // Calculate missing date chunks (only fetch what we don't have, plus today for updates)
-      const dateChunks = getMissingDateChunks(creationDate, today, existingDates!);
+      // Calculate chunks to fetch: missing days plus the trailing refresh window
+      const dateChunks = getMissingDateChunks(
+        creationDate,
+        today,
+        existingDates!,
+        CHUNK_SIZE
+      );
 
       if (dateChunks.length === 0) {
         console.log(

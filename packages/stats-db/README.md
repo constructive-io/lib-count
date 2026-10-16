@@ -161,7 +161,9 @@ export DATABASE_URL=postgres://postgres:password@localhost:5432/stats_dev
 
 ### Understanding Fetch Modes
 
-**Normal mode** (default): Only processes packages where `last_fetched_date < TODAY`. This is efficient for daily updates but may miss gaps if a previous fetch was interrupted.
+**Normal mode** (default): Only processes packages where `last_fetched_date < TODAY`. For each one it fetches any missing days **plus the last 30 days**, up to yesterday (UTC).
+
+Why the last 30 days are always re-fetched: npm publishes a day's counts some time after the day ends and reports `0` until then, and it occasionally has outages that it backfills later. Re-fetching the trailing window corrects those days on the next run at no extra cost, since each run already requests the newest days in one call. A stored count is never overwritten with `0`.
 
 **Backfill mode** (`--backfill`): Scans ALL active packages regardless of `last_fetched_date`. For each package, it:
 1. Retrieves all existing download dates from the database
@@ -174,6 +176,17 @@ Use backfill mode when:
 - A previous fetch was interrupted by rate limiting (429 errors)
 - You want to verify data completeness for all packages
 
+
+### Dates and the one-day offset fix
+
+Download dates are stored as npm's UTC days. Before September 2026 they were stored one day early: dates were sent to Postgres as JS `Date`s, which node-postgres serializes in local time, so npm's `2026-08-02` became `2026-08-01`. To repair a database, including one loaded from an older dump, run:
+
+```sh
+pnpm npm:fix:date-offset -- --dry-run   # compare against npm, change nothing
+pnpm npm:fix:date-offset                # shift every row forward one day if needed
+```
+
+The task checks the stored counts against npm before it changes anything. If the dates already match, it does nothing. If they match neither npm's days nor npm's days shifted by one, it refuses. That makes it safe to run repeatedly, and `update_stats.sh` runs it on every refresh.
 
 - **Generate Report**: Generate a report based on the fetched data.
 
