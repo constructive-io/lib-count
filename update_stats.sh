@@ -16,13 +16,18 @@
 #   6. generate report, badges and README
 #   7. commit, push to the fork, open a PR against upstream
 #
-# npm rate-limits aggressively (429); each network step is retried with a pause.
+# npm rate-limits aggressively (429). Downloads are fetched with the conservative
+# throttle from packages/stats-db/README.md (one package at a time, 3000ms apart);
+# the fetcher's own defaults get blocked after ~20 packages. Each network step is
+# also retried with a pause.
 #
 # Environment (defaults in brackets):
 #   DATABASE_URL     [postgresql://postgres:password@localhost:5432/stats_dev]
 #   UPSTREAM_REMOTE  git remote for constructive-io/lib-count  [upstream]
 #   FORK_REMOTE      git remote the branch is pushed to        [origin]
 #   UPSTREAM_REPO    GitHub repo the PR is opened against      [constructive-io/lib-count]
+#   FETCH_CONCURRENT packages fetched at once                  [1]
+#   FETCH_DELAY      ms between npm requests                   [3000]
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -31,6 +36,8 @@ export DATABASE_URL="${DATABASE_URL:-postgresql://postgres:password@localhost:54
 UPSTREAM_REMOTE="${UPSTREAM_REMOTE:-upstream}"
 FORK_REMOTE="${FORK_REMOTE:-origin}"
 UPSTREAM_REPO="${UPSTREAM_REPO:-constructive-io/lib-count}"
+FETCH_CONCURRENT="${FETCH_CONCURRENT:-1}"
+FETCH_DELAY="${FETCH_DELAY:-3000}"
 MAX_ATTEMPTS=10
 RETRY_PAUSE=120
 
@@ -38,7 +45,7 @@ OPEN_PR=1
 for arg in "$@"; do
   case "$arg" in
     --no-pr) OPEN_PR=0 ;;
-    -h|--help) sed -n '2,25p' "$0"; exit 0 ;;
+    -h|--help) sed -n '2,30p' "$0"; exit 0 ;;
     *) echo "unknown option: $arg" >&2; exit 1 ;;
   esac
 done
@@ -87,7 +94,7 @@ step "Discovering new packages"
 with_retry npm:fetch:packages
 
 step "Fetching downloads"
-with_retry npm:fetch:downloads
+with_retry npm:fetch:downloads -- --concurrent "$FETCH_CONCURRENT" --delay "$FETCH_DELAY"
 
 # ---------------------------------------------------------------------------
 step "Verifying the data"
@@ -104,7 +111,7 @@ GAPS_SQL="
 GAPS=$(sql "$GAPS_SQL")
 if [ "$GAPS" -gt 0 ]; then
   echo "$GAPS missing (package, day) rows; running a backfill..."
-  with_retry npm:fetch:downloads -- --backfill
+  with_retry npm:fetch:downloads -- --backfill --concurrent "$FETCH_CONCURRENT" --delay "$FETCH_DELAY"
   GAPS=$(sql "$GAPS_SQL")
   if [ "$GAPS" -gt 0 ]; then
     echo "still $GAPS missing (package, day) rows after backfill; stopping" >&2
