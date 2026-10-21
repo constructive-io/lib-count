@@ -233,7 +233,7 @@ CREATE TABLE developers.crawl_run (
   id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
   task text NOT NULL,
   source_id text NOT NULL REFERENCES developers.source (id),
-  dependent_kind text NOT NULL CHECK (dependent_kind IN ('package', 'repository')),
+  dependent_kind text CHECK (dependent_kind IN ('package', 'repository')),
   hop smallint NOT NULL DEFAULT 1 CHECK (hop IN (1, 2)),
   params jsonb NOT NULL DEFAULT '{}'::jsonb,
   code_version text NOT NULL,
@@ -245,11 +245,11 @@ CREATE TABLE developers.crawl_run (
   CHECK ((finished_at IS NULL) = (status = 'running'))
 );
 
-COMMENT ON TABLE developers.crawl_run IS 'One crawler execution over a set of targets. Only a run with status complete may mark edges removed (see close_run).';
+COMMENT ON TABLE developers.crawl_run IS 'One crawler execution over a set of targets. Only a complete run of a verification source may mark edges removed (see close_run).';
 COMMENT ON COLUMN developers.crawl_run.id IS 'Run id.';
 COMMENT ON COLUMN developers.crawl_run.task IS 'Crawler task name, e.g. npm-dependents, github-dependents.';
-COMMENT ON COLUMN developers.crawl_run.source_id IS 'The verifying source whose observations this run records.';
-COMMENT ON COLUMN developers.crawl_run.dependent_kind IS 'Kind of dependents this run can observe; copied from source.dependent_kind.';
+COMMENT ON COLUMN developers.crawl_run.source_id IS 'The verification source whose observations this run records, or the enrichment source whose snapshots it records. Discovery sources never own runs.';
+COMMENT ON COLUMN developers.crawl_run.dependent_kind IS 'Copied from source.dependent_kind. NULL for enrichment runs (downloads, counts), which can never observe or remove edges.';
 COMMENT ON COLUMN developers.crawl_run.hop IS '1 = dependents of our packages; 2 = dependents of hop-1 dependents.';
 COMMENT ON COLUMN developers.crawl_run.params IS 'Resolved parameters (thresholds, limits, intent values) so the run is reproducible.';
 COMMENT ON COLUMN developers.crawl_run.code_version IS 'Crawler git sha (or version) that produced the run.';
@@ -706,14 +706,21 @@ CREATE FUNCTION developers.start_run(
 ) RETURNS uuid AS $$
 DECLARE
   _kind text;
+  _role text;
   _run_id uuid;
 BEGIN
-  SELECT dependent_kind INTO _kind FROM developers.source WHERE id = _source_id;
+  SELECT dependent_kind, role INTO _kind, _role FROM developers.source WHERE id = _source_id;
   IF NOT FOUND THEN
     RAISE EXCEPTION 'start_run: unknown source %', _source_id;
   END IF;
-  IF _kind IS NULL THEN
-    RAISE EXCEPTION 'start_run: source % does not verify edges (dependent_kind is null)', _source_id;
+  IF _role NOT IN ('verification', 'enrichment') THEN
+    RAISE EXCEPTION 'start_run: source % has role %; only verification and enrichment sources own runs (discovery hits are recorded under the verification run that used them)', _source_id, _role;
+  END IF;
+  IF _role = 'verification' AND _kind IS NULL THEN
+    RAISE EXCEPTION 'start_run: verification source % has no dependent_kind', _source_id;
+  END IF;
+  IF _role = 'enrichment' THEN
+    _kind := NULL;
   END IF;
   IF _target_names IS NULL OR cardinality(_target_names) = 0 THEN
     RAISE EXCEPTION 'start_run: a run needs at least one target';
@@ -731,7 +738,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql VOLATILE;
 
-COMMENT ON FUNCTION developers.start_run(text, text, text[], integer, jsonb, text) IS 'Opens a crawl_run for a verifying source over the named target packages and returns the run id. Raises on unknown source, non-verifying source or empty targets.';
+COMMENT ON FUNCTION developers.start_run(text, text, text[], integer, jsonb, text) IS 'Opens a crawl_run over the named target packages and returns the run id. Verification sources get the sources dependent_kind; enrichment sources get NULL (they only write snapshots). Raises on unknown source, discovery/history/manual sources, or empty targets.';
 
 -- revert:
 --   DROP FUNCTION developers.start_run(text, text, text[], integer, jsonb, text);
@@ -771,6 +778,9 @@ BEGIN
   IF _run.status <> 'running' THEN
     RAISE EXCEPTION 'observe_edge: run % is %, not running', _run_id, _run.status;
   END IF;
+  IF _run.dependent_kind IS NULL THEN
+    RAISE EXCEPTION 'observe_edge: run % belongs to enrichment source % and cannot observe edges', _run_id, _run.source_id;
+  END IF;
 
   _target_id := developers.package_id('npm', _target_name);
   IF NOT EXISTS (SELECT 1 FROM developers.crawl_run_target WHERE run_id = _run_id AND package_id = _target_id) THEN
@@ -807,7 +817,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql VOLATILE;
 
-COMMENT ON FUNCTION developers.observe_edge(uuid, text, text, text, text, text, text, timestamptz) IS 'Records that a running run saw dependent _dependent_key (npm name or owner/name, per the run''s dependent_kind) declaring _target_name in _manifest_path. Upserts the edge (first_seen_at = least, last_seen_at = greatest, removed_at cleared) and appends one observation per (edge, run, source). Idempotent. Raises if the run is not running or the target is not one of the run''s targets.';
+COMMENT ON FUNCTION developers.observe_edge(uuid, text, text, text, text, text, text, timestamptz) IS 'Records that a running run saw dependent _dependent_key (npm name or owner/name, per the run''s dependent_kind) declaring _target_name in _manifest_path. Upserts the edge (first_seen_at = least, last_seen_at = greatest, removed_at cleared) and appends one observation per (edge, run, source). Idempotent. Raises if the run is not running, belongs to an enrichment source, or the target is not one of the run''s targets.';
 
 -- revert:
 --   DROP FUNCTION developers.observe_edge(uuid, text, text, text, text, text, text, timestamptz);
@@ -847,7 +857,7 @@ BEGIN
   SET status = _status, finished_at = now(), stats = _stats, error = _error
   WHERE id = _run_id;
 
-  IF _status = 'complete' THEN
+  IF _status = 'complete' AND _run.dependent_kind IS NOT NULL THEN
     WITH gone AS (
       UPDATE developers.dependency_edge e
       SET removed_at = now(), removed_by_run_id = _run_id
@@ -866,7 +876,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql VOLATILE;
 
-COMMENT ON FUNCTION developers.close_run(uuid, text, jsonb, text) IS 'Finishes a run. On status complete, sets removed_at on every edge of the run''s targets (same hop and dependent_kind) that the run did not observe and that no concurrent run has seen since it started; returns how many. partial/failed never remove anything.';
+COMMENT ON FUNCTION developers.close_run(uuid, text, jsonb, text) IS 'Finishes a run. On status complete for a verification source, sets removed_at on every edge of the run''s targets (same hop and dependent_kind) that the run did not observe and that no concurrent run has seen since it started; returns how many. partial/failed runs and enrichment-source runs never remove anything.';
 
 -- revert:
 --   DROP FUNCTION developers.close_run(uuid, text, jsonb, text);
@@ -906,7 +916,7 @@ INSERT INTO developers.category_family (category_name, family) VALUES
   ('interchain-kit', 'chain'), ('interchain-kit-wallets', 'chain'), ('interchain-js', 'chain'), ('interchain-ui', 'chain'),
   ('chain-registry', 'chain'), ('telescope', 'chain'), ('cosmwasm', 'chain'), ('hyperwebjs', 'chain'), ('protobufs', 'chain'),
   ('starship', 'chain'), ('osmosis', 'chain'), ('juno', 'chain'), ('stride', 'chain'), ('stargaze', 'chain'), ('dydx', 'chain'),
-  ('quicksilver', 'chain'), ('chain', 'chain');
+  ('quicksilver', 'chain'), ('chain', 'chain'), ('boilerplates', 'chain');
 
 -- revert:
 --   DELETE FROM developers.category_family;

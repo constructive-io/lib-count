@@ -78,8 +78,19 @@ SELECT target_name, direct_dependents, hop2_dependents FROM developers.transitiv
 SELECT * FROM developers.public_counts ORDER BY 1;
 SELECT target_name, week_start, dependents, downloads FROM developers.adoption_by_week WHERE week_start = date_trunc('week', now())::date ORDER BY 1;
 
-\echo '--- T9 start_run validation'
-DO $$ BEGIN PERFORM developers.start_run('x', 'depsdev', ARRAY['example-parser']); RAISE EXCEPTION 'should have failed'; EXCEPTION WHEN raise_exception THEN IF SQLERRM NOT LIKE '%does not verify%' THEN RAISE; END IF; END $$;
+\echo '--- T9 start_run validation (discovery/manual sources cannot own runs; empty targets rejected)'
+DO $$ BEGIN PERFORM developers.start_run('x', 'ecosystems', ARRAY['example-parser']); RAISE EXCEPTION 'should have failed'; EXCEPTION WHEN raise_exception THEN IF SQLERRM NOT LIKE '%only verification and enrichment%' THEN RAISE; END IF; END $$;
+DO $$ BEGIN PERFORM developers.start_run('x', 'manual', ARRAY['example-parser']); RAISE EXCEPTION 'should have failed'; EXCEPTION WHEN raise_exception THEN IF SQLERRM NOT LIKE '%only verification and enrichment%' THEN RAISE; END IF; END $$;
+
+\echo '--- T11 enrichment runs (depsdev, npm-downloads) can own snapshots but never observe or remove edges'
+SELECT developers.start_run('depsdev-counts', 'depsdev', ARRAY['example-parser']) AS r9 \gset
+INSERT INTO developers.target_count_snapshot (package_id, source_id, observed_on, direct_count, indirect_count, run_id) VALUES (developers.package_id('npm','example-parser'), 'depsdev', current_date, 3, 40, :'r9');
+DO $$ BEGIN PERFORM developers.observe_edge((SELECT id FROM developers.crawl_run WHERE source_id = 'depsdev'), 'example-parser', 'example-app'); RAISE EXCEPTION 'should have failed'; EXCEPTION WHEN raise_exception THEN IF SQLERRM NOT LIKE '%enrichment source%' THEN RAISE; END IF; END $$;
+SELECT developers.close_run(:'r9', 'complete', '{"targets":1}') AS removed_r9 \gset
+SELECT 1/(:removed_r9 = 0)::int;
+SELECT 1/((SELECT count(*) FROM developers.dependency_edge WHERE removed_at IS NOT NULL) = 0)::int;
+SELECT 1/((SELECT dependent_kind IS NULL FROM developers.crawl_run WHERE id = :'r9'))::int;
+SELECT 1/((SELECT depsdev_indirect_count = 40 FROM developers.transitive_reach WHERE target_name = 'example-parser'))::int;
 DO $$ BEGIN PERFORM developers.start_run('x', 'npm-registry', ARRAY[]::text[]); RAISE EXCEPTION 'should have failed'; EXCEPTION WHEN raise_exception THEN IF SQLERRM NOT LIKE '%at least one target%' THEN RAISE; END IF; END $$;
 
 \echo '--- T10 private side: deterministic account id, people views'
