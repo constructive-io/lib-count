@@ -1,0 +1,27 @@
+{
+  "name": "@interweb-utils/developers",
+  "version": "0.0.1",
+  "private": true,
+  "author": "Dan Lynch <pyramation@gmail.com>",
+  "description": "developers graph: public-safe dependency edges on our packages",
+  "homepage": "https://github.com/constructive-io/lib-count",
+  "license": "SEE LICENSE IN LICENSE",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/constructive-io/lib-count"
+  },
+  "bugs": {
+    "url": "https://github.com/constructive-io/lib-count/issues"
+  },
+  "scripts": {
+    "lint": "eslint . --fix",
+    "test": "jest",
+    "test:watch": "jest --watch"
+  },
+  "dependencies": {
+    "@pgpm/verify": "^0.47"
+  },
+  "devDependencies": {
+    "pgsql-test": "^5.18.1"
+  }
+}

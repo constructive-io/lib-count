@@ -1,0 +1,7 @@
+# developers extension
+comment = 'developers extension'
+default_version = '0.0.1'
+module_pathname = '$libdir/developers'
+requires = 'citext,github,npm,pgpm-defaults,pgpm-verify,plpgsql,uuid-ossp'
+relocatable = false
+superuser = false

@@ -1,0 +1,7 @@
+# developers-private extension
+comment = 'developers-private extension'
+default_version = '0.0.1'
+module_pathname = '$libdir/developers-private'
+requires = 'plpgsql,uuid-ossp,citext,pgpm-verify,developers'
+relocatable = false
+superuser = false
