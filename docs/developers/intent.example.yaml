@@ -1,0 +1,68 @@
+# developers crawler intent (example). Copy to packages/developers-crawler/intent.yaml (gitignored) and adjust.
+# Describes WHAT to track and HOW each field may be derived. Contains no collected data.
+# The crawler validates this file at startup and exits 2 on unknown keys or wrong types.
+version: 1
+
+ours:
+  github_orgs: [constructive-io]            # repos whose dependents pages are crawled in addition to package_repository rows
+  npm_maintainers: [pyramation]             # candidates maintained by these accounts are recorded as hits, never as edges
+  npm_scopes: ["@constructive-io", "@pgsql", "@pgpmjs", "@pgpm", "@launchql", "@libpg-query", "@constructive-db"]
+  affiliated_github_owners: [launchql, pyramation, hyperweb-io, cosmology-tech, pyramation-studio]  # flagged kind=affiliated, not counted as dependents
+  extra_packages: []                        # tracked targets not present in npm_count.npm_package (reason=intent)
+  exclude_packages: []                      # never tracked even if in npm_count.npm_package
+  track_families: [cloud, chain, utils]     # developers.our_package.family values whose dependents are crawled (personal is excluded)
+
+thresholds:
+  npm:
+    min_target_weekly_downloads: 0          # crawl dependents only for targets at/above this (0 = all)
+    hop2_top_n: 20                          # bounded second hop: dependents of the top-N hop-1 package dependents by weekly downloads
+  github:
+    min_stars_verify: 0                     # verify every HTML candidate at/above this many stars (0 = all)
+    min_stars_history: 10                   # git-history reconstruction (who-added) only at/above this
+    max_manifests_per_repo: 40
+    max_lockfiles_per_repo: 6
+    history_samples: 48                     # commits sampled before bisection
+
+sources:                                    # id must match developers.source.id
+  npm-registry:           {enabled: true,  cache_ttl_hours: 6,  concurrency: 4, spacing_ms: 100}
+  npm-downloads:          {enabled: true,  cache_ttl_hours: 24, concurrency: 2, spacing_ms: 250}
+  ecosystems:             {enabled: true,  cache_ttl_hours: 24, concurrency: 4, spacing_ms: 100}
+  npm-web:                {enabled: false, cache_ttl_hours: 24, concurrency: 1, spacing_ms: 1500, headers: {x-spiferack: "1"}}  # Cloudflare 403 from CI/VMs; when enabled, a non-JSON response FAILS the run
+  depsdev:                {enabled: true,  cache_ttl_hours: 24, concurrency: 4, spacing_ms: 100}
+  github-dependents-html: {enabled: true,  cache_ttl_hours: 24, concurrency: 1, spacing_ms: 1500}
+  github-api:             {enabled: true,  cache_ttl_hours: 24}                  # Octokit throttling plugin governs the rate; token from GITHUB_TOKEN via config.ts
+  git-history:            {enabled: true,  clone_dir: data/clones}
+
+cadence:
+  npm_dependents: weekly
+  npm_downloads: weekly
+  github_dependents: weekly
+  enrichment_refresh_days: 30
+  git_history: on-new-edge                  # who-added runs for edges first seen or removed since the last run
+  removal_rule: "an edge gets removed_at only when a COMPLETE run for its target (same hop and dependent kind) no longer observes it and nothing has seen it since the run started"
+
+lib_count:
+  database: stats_dev                       # read-only source for sync-lib-count; same host/port/user as PG* env
+  daily_downloads_overlap_days: 35          # re-copy this many trailing days each sync
+
+fields:
+  deterministic:                            # pure functions of a public source; no judgement
+    - package.*, package_download_snapshot.*, repository.*, repository_snapshot.*
+    - dependency_edge (dep_type, version_range, manifest_path, hop) and edge_observation
+    - package_dependency_history (first/last/first-without version and dates)
+    - edge_commit_event (sha, date, author login/name) from git history or blame
+    - account.* copied verbatim from the platform profile
+  inferred:                                 # ALWAYS source_id + confidence + evidence
+    - person_account (method: same-login | npm-repo-owner | name-match | manual)
+    - organization (kind), repository_owner, employment_claim, annotation
+  confidence_guide:
+    high:   "explicit and first-party: repo owned by the org, or the person's own profile states it"
+    medium: "self-reported field without corroboration (GitHub company), or a strong indirect link"
+    low:    "name match or third-party mention only"
+
+privacy:                                    # asserted by tests against the live schema
+  pii_schema: developers_private
+  public_schema: developers                 # may not depend on pii_schema (pg_depend test)
+  store_emails: false                       # no column named %email% in either schema
+  publishable_views: [developers.public_counts]   # aggregate only; publishing is a separate, later decision
+  exports_private_dir: data/exports/private
