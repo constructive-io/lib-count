@@ -16,13 +16,18 @@
 #   6. generate report, badges and README
 #   7. commit, push to the fork, open a PR against upstream
 #
-# npm rate-limits aggressively (429); each network step is retried with a pause.
+# npm rate-limits aggressively (429). Downloads are fetched with the conservative
+# throttle from packages/stats-db/README.md (one package at a time, 3000ms apart);
+# the fetcher's own defaults get blocked after ~20 packages. Each network step is
+# also retried with a pause.
 #
 # Environment (defaults in brackets):
 #   DATABASE_URL     [postgresql://postgres:password@localhost:5432/stats_dev]
 #   UPSTREAM_REMOTE  git remote for constructive-io/lib-count  [upstream]
 #   FORK_REMOTE      git remote the branch is pushed to        [origin]
 #   UPSTREAM_REPO    GitHub repo the PR is opened against      [constructive-io/lib-count]
+#   FETCH_CONCURRENT packages fetched at once                  [1]
+#   FETCH_DELAY      ms between npm requests                   [3000]
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -31,6 +36,8 @@ export DATABASE_URL="${DATABASE_URL:-postgresql://postgres:password@localhost:54
 UPSTREAM_REMOTE="${UPSTREAM_REMOTE:-upstream}"
 FORK_REMOTE="${FORK_REMOTE:-origin}"
 UPSTREAM_REPO="${UPSTREAM_REPO:-constructive-io/lib-count}"
+FETCH_CONCURRENT="${FETCH_CONCURRENT:-1}"
+FETCH_DELAY="${FETCH_DELAY:-3000}"
 MAX_ATTEMPTS=10
 RETRY_PAUSE=120
 
@@ -38,7 +45,7 @@ OPEN_PR=1
 for arg in "$@"; do
   case "$arg" in
     --no-pr) OPEN_PR=0 ;;
-    -h|--help) sed -n '2,25p' "$0"; exit 0 ;;
+    -h|--help) sed -n '2,30p' "$0"; exit 0 ;;
     *) echo "unknown option: $arg" >&2; exit 1 ;;
   esac
 done
@@ -87,15 +94,22 @@ step "Discovering new packages"
 with_retry npm:fetch:packages
 
 step "Fetching downloads"
-with_retry npm:fetch:downloads
+with_retry npm:fetch:downloads -- --concurrent "$FETCH_CONCURRENT" --delay "$FETCH_DELAY"
 
 # ---------------------------------------------------------------------------
 step "Verifying the data"
 LATEST=$(sql "SELECT MAX(date) FROM (SELECT date FROM npm_count.daily_downloads GROUP BY date HAVING SUM(download_count) > 0) d")
+# A day no package has a positive count for is a day npm has not published (an
+# npm-side outage). The fetcher leaves those days without rows so they are retried
+# on every run; they are reported below as outages, not counted as gaps.
 GAPS_SQL="
+  WITH published AS (
+    SELECT DISTINCT date FROM npm_count.daily_downloads WHERE download_count > 0
+  )
   SELECT COUNT(*)
   FROM npm_count.npm_package p
   CROSS JOIN LATERAL generate_series(GREATEST(p.creation_date, '2024-01-01'::date), '$LATEST'::date, interval '1 day') AS day
+  JOIN published pub ON pub.date = day::date
   WHERE p.is_active
     AND NOT EXISTS (
       SELECT 1 FROM npm_count.daily_downloads d
@@ -104,7 +118,7 @@ GAPS_SQL="
 GAPS=$(sql "$GAPS_SQL")
 if [ "$GAPS" -gt 0 ]; then
   echo "$GAPS missing (package, day) rows; running a backfill..."
-  with_retry npm:fetch:downloads -- --backfill
+  with_retry npm:fetch:downloads -- --backfill --concurrent "$FETCH_CONCURRENT" --delay "$FETCH_DELAY"
   GAPS=$(sql "$GAPS_SQL")
   if [ "$GAPS" -gt 0 ]; then
     echo "still $GAPS missing (package, day) rows after backfill; stopping" >&2
@@ -120,8 +134,8 @@ OUTAGES=$(sql "
     SELECT 1 FROM npm_count.daily_downloads d WHERE d.date = day::date AND d.download_count > 0
   )")
 if [ -n "$OUTAGES" ]; then
-  echo "npm reported zero downloads for every package on: $OUTAGES"
-  echo "(npm-side outages; the README excludes them from the monthly/weekly windows)"
+  echo "npm has not published these days (0 for every package; retried on every run): $OUTAGES"
+  echo "(npm-side outages; not stored as 0, the README excludes them from the monthly/weekly windows)"
 fi
 
 MISC=$(cd "$DB_DIR" && pnpm -s npm:categories:list-misc 2>/dev/null | sed -n 's/^Found \([0-9]*\) uncategorized.*/\1/p')

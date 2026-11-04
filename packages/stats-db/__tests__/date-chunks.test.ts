@@ -34,6 +34,30 @@ describe('fetch-downloads date chunks', () => {
     ]);
   });
 
+  it('does not request a day npm has not published, until npm publishes it', () => {
+    const existing = new Set(daysBetween('2026-01-01', '2026-09-28'));
+    existing.delete('2026-03-15'); // real gap
+    existing.delete('2026-07-12'); // npm outage day, no row
+    const unpublished = new Set(['2026-07-12']);
+    expect(
+      fmt(getMissingDateChunks(day('2026-01-01'), new Date(), existing, 30, unpublished))
+    ).toEqual(['2026-03-15..2026-03-15', '2026-08-30..2026-09-28']);
+    // npm publishes it: requested like any other missing day
+    expect(fmt(getMissingDateChunks(day('2026-01-01'), new Date(), existing, 30))).toEqual([
+      '2026-03-15..2026-03-15',
+      '2026-07-12..2026-07-12',
+      '2026-08-30..2026-09-28',
+    ]);
+  });
+
+  it('still refreshes unpublished days inside the trailing window', () => {
+    const existing = new Set(daysBetween('2026-01-01', '2026-09-28'));
+    existing.delete('2026-09-10');
+    expect(
+      fmt(getMissingDateChunks(day('2026-01-01'), new Date(), existing, 30, new Set(['2026-09-10'])))
+    ).toEqual(['2026-08-30..2026-09-28']);
+  });
+
   it('fills an older one-day gap', () => {
     const existing = new Set(daysBetween('2026-01-01', '2026-09-28'));
     existing.delete('2026-03-15');

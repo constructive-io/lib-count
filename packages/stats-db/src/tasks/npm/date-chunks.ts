@@ -53,11 +53,16 @@ export function getDateChunks(
 // extra requests -- every run already fetches the newest days as one chunk.
 export const REFRESH_DAYS = 30;
 
+// `unpublishedDates`: days npm has not published for any package (see
+// unpublished-days.ts). They have no row, but asking npm again cannot help until
+// it publishes them, so they are not requested on their own. Once npm publishes
+// one it drops out of this set and is fetched like any other missing day.
 export function getMissingDateChunks(
   startDate: Date,
   endDate: Date,
   existingDates: Set<string>,
-  chunkSize = DEFAULT_CHUNK_SIZE
+  chunkSize = DEFAULT_CHUNK_SIZE,
+  unpublishedDates: Set<string> = new Set()
 ): DateRange[] {
   const chunks: DateRange[] = [];
   let currentStart: Date | null = null;
@@ -71,7 +76,9 @@ export function getMissingDateChunks(
 
   while (current <= finalEndDate) {
     const dateStr = current.toISOString().split('T')[0];
-    const isMissing = !existingDates.has(dateStr) || current >= refreshFrom;
+    const isMissing =
+      (!existingDates.has(dateStr) && !unpublishedDates.has(dateStr)) ||
+      current >= refreshFrom;
 
     if (isMissing) {
       // Start or continue a missing range

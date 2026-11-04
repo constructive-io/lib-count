@@ -134,9 +134,13 @@ export DATABASE_URL=postgres://postgres:password@localhost:5432/stats_dev
   ```
 
   **Conservative (avoid 429 errors):**
+
+  This is what `update_stats.sh` uses. In Oct 2026 npm blocked `--delay 1500` after
+  about 20 packages, while `--delay 3000` fetched 931 packages with no 429s.
+
   ```sh
-  pnpm npm:fetch:downloads -- --concurrent 1 --delay 1500
-  # Or using short flags: -c 1 -d 1500
+  pnpm npm:fetch:downloads -- --concurrent 1 --delay 3000
+  # Or using short flags: -c 1 -d 3000
   ```
 
   **Aggressive (if rate limits improve):**
@@ -146,7 +150,7 @@ export DATABASE_URL=postgres://postgres:password@localhost:5432/stats_dev
 
   **Backfill mode (scan for gaps in historical data):**
   ```sh
-  pnpm npm:fetch:downloads -- --backfill --concurrent 1 --delay 1500
+  pnpm npm:fetch:downloads -- --backfill --concurrent 1 --delay 3000
   # Or using short flag: -b
   ```
 
