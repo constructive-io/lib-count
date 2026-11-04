@@ -317,6 +317,25 @@ export async function getExistingDownloadDates(
   return new Set(result.rows.map((row) => row.date));
 }
 
+/**
+ * Remove stored 0s on days npm has not published (see unpublished-days.ts), so
+ * those days count as missing and are fetched again once npm publishes them.
+ * Only rows that are exactly 0 are touched: a real count is never deleted.
+ */
+export async function deleteUnpublishedZeroRows(
+  client: PoolClient,
+  packageName: string,
+  dates: string[]
+): Promise<number> {
+  if (dates.length === 0) return 0;
+  const result = await client.query(
+    `DELETE FROM npm_count.daily_downloads
+     WHERE package_name = $1 AND date = ANY($2::date[]) AND download_count = 0`,
+    [packageName, dates]
+  );
+  return result.rowCount ?? 0;
+}
+
 export async function getPackagesWithMissingDates(
   client: PoolClient
 ): Promise<Array<{ packageName: string; creationDate: Date; lastFetchedDate: Date | null }>> {

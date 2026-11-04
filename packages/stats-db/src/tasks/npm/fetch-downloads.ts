@@ -10,11 +10,15 @@ import {
   getTotalLifetimeDownloads,
   getPackagesWithMissingDates,
   getExistingDownloadDates,
+  deleteUnpublishedZeroRows,
 } from "./npm.queries";
 import { delay } from "../../utils";
 import { DateRange, normalizeDate, getMissingDateChunks } from "./date-chunks";
+import { UnpublishedDays, partitionDownloads } from "./unpublished-days";
 
 const npmClient = new NPMApiClient();
+// Created in run(), once the throttle is known.
+let unpublishedDays: UnpublishedDays;
 
 // Default configuration - can be overridden via options
 const DEFAULT_CONCURRENT_TASKS = 2; // Reduced from 200 to avoid rate limits
@@ -96,15 +100,33 @@ async function processPackageChunk(
     }
 
     // Ensure all dates are normalized to UTC
-    const normalizedDownloads = downloadData.downloads.map((d) => ({
+    const allDownloads = downloadData.downloads.map((d) => ({
       date: normalizeDate(new Date(d.day)),
       downloadCount: d.downloads,
     }));
 
+    // npm's 0 for a day it has not published is not a count: do not store it,
+    // and drop any 0 stored for it earlier, so the day stays missing and is
+    // fetched again once npm publishes it.
+    const unpublished = await unpublishedDays.between(dateRange.start, dateRange.end);
+    const { store: normalizedDownloads, unpublishedDates } = partitionDownloads(
+      allDownloads,
+      unpublished
+    );
+
     // Insert in its own transaction - this ensures the data is committed even if later chunks fail
+    let cleared = 0;
     await db.withTransaction(async (dbClient: PoolClient) => {
       await insertDailyDownloads(dbClient, packageName, normalizedDownloads);
+      cleared = await deleteUnpublishedZeroRows(dbClient, packageName, unpublishedDates);
     });
+    if (unpublishedDates.length > 0) {
+      console.log(
+        `[${current}/${total}] ⏳ ${packageName}: npm has not published ${unpublishedDates.length} day(s) ` +
+          `(${unpublishedDates.join(", ")}); not stored, will retry` +
+          (cleared > 0 ? ` (removed ${cleared} stale 0 row(s))` : "")
+      );
+    }
 
     const totalDownloads = normalizedDownloads.reduce(
       (sum, d) => sum + d.downloadCount,
@@ -147,12 +169,27 @@ async function processPackageDownloads(
         existingDates = await getExistingDownloadDates(dbClient, packageName);
       });
 
+      // Days npm has not published are not requested on their own (they cannot
+      // be filled until npm publishes them); only days without a row are checked.
+      const yesterday = normalizeDate(today);
+      yesterday.setUTCDate(yesterday.getUTCDate() - 1);
+      const rangeStart = normalizeDate(creationDate);
+      let unpublished = new Set<string>();
+      const needsCheck: Date[] = [];
+      for (const d = new Date(rangeStart); d <= yesterday; d.setUTCDate(d.getUTCDate() + 1)) {
+        if (!existingDates!.has(d.toISOString().split("T")[0])) needsCheck.push(new Date(d));
+      }
+      if (needsCheck.length > 0) {
+        unpublished = await unpublishedDays.between(needsCheck[0], needsCheck[needsCheck.length - 1]);
+      }
+
       // Calculate chunks to fetch: missing days plus the trailing refresh window
       const dateChunks = getMissingDateChunks(
         creationDate,
         today,
         existingDates!,
-        CHUNK_SIZE
+        CHUNK_SIZE,
+        unpublished
       );
 
       if (dateChunks.length === 0) {
@@ -305,6 +342,8 @@ async function run(options: RunOptions = {}): Promise<void> {
   CONCURRENT_TASKS = concurrentTasks;
   RATE_LIMIT_DELAY = rateLimitDelay;
   CHUNK_SIZE = chunkSize;
+  // Reference-package lookups share the same throttle as package requests.
+  unpublishedDays = new UnpublishedDays(npmClient, RATE_LIMIT_DELAY);
 
   const db = new Database();
   const scriptStartTime = Date.now();

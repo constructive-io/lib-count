@@ -99,10 +99,17 @@ with_retry npm:fetch:downloads -- --concurrent "$FETCH_CONCURRENT" --delay "$FET
 # ---------------------------------------------------------------------------
 step "Verifying the data"
 LATEST=$(sql "SELECT MAX(date) FROM (SELECT date FROM npm_count.daily_downloads GROUP BY date HAVING SUM(download_count) > 0) d")
+# A day no package has a positive count for is a day npm has not published (an
+# npm-side outage). The fetcher leaves those days without rows so they are retried
+# on every run; they are reported below as outages, not counted as gaps.
 GAPS_SQL="
+  WITH published AS (
+    SELECT DISTINCT date FROM npm_count.daily_downloads WHERE download_count > 0
+  )
   SELECT COUNT(*)
   FROM npm_count.npm_package p
   CROSS JOIN LATERAL generate_series(GREATEST(p.creation_date, '2024-01-01'::date), '$LATEST'::date, interval '1 day') AS day
+  JOIN published pub ON pub.date = day::date
   WHERE p.is_active
     AND NOT EXISTS (
       SELECT 1 FROM npm_count.daily_downloads d
@@ -127,8 +134,8 @@ OUTAGES=$(sql "
     SELECT 1 FROM npm_count.daily_downloads d WHERE d.date = day::date AND d.download_count > 0
   )")
 if [ -n "$OUTAGES" ]; then
-  echo "npm reported zero downloads for every package on: $OUTAGES"
-  echo "(npm-side outages; the README excludes them from the monthly/weekly windows)"
+  echo "npm has not published these days (0 for every package; retried on every run): $OUTAGES"
+  echo "(npm-side outages; not stored as 0, the README excludes them from the monthly/weekly windows)"
 fi
 
 MISC=$(cd "$DB_DIR" && pnpm -s npm:categories:list-misc 2>/dev/null | sed -n 's/^Found \([0-9]*\) uncategorized.*/\1/p')
