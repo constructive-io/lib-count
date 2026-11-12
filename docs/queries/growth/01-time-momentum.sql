@@ -20,6 +20,7 @@
 -- Growth figures are blank when the base run-rate is under :base_floor downloads/day (tiny bases make
 -- multiples meaningless). Knobs, all overridable with -v:
 --   base_floor (1000)  milestone_step (50000000)  months_back (24)  quarters_back (12)  chart_weeks (104)
+--   company_start (2020-03-30)  the day the company was founded; query 13 counts years from it
 
 \ir 00-setup.sql
 
@@ -43,6 +44,10 @@
 \if :{?chart_weeks}
 \else
   \set chart_weeks 104
+\endif
+\if :{?company_start}
+\else
+  \set company_start 2020-03-30
 \endif
 
 -- One row per scope per PUBLISHED day. A rollup with no downloads on a published day gets 0 (a real zero);
@@ -447,3 +452,41 @@ select week_ending,
 from a
 group by week_ending
 order by week_ending;
+
+
+\echo
+\echo == 13. Company years: growth counted from the founding date (:company_start) ==
+-- The open-source packages are older than the company, and the first years are tiny, so multiples that start
+-- in 2017 mean nothing. This counts years from :company_start instead: year 1 is the first 12 months of the
+-- company, and year 0 is everything before it. yoy_x compares per_day with the year before (blank under
+-- :base_floor). The last year is partial; its per_day is usable, its total is not. since_year1_x is the
+-- per_day multiple over year 1, and per_year_x is that multiple expressed as an average rate per year.
+with d as (
+  select t.scope, t.ord, t.date, t.n,
+         case when t.date < :'company_start'::date then 0
+              else extract(year from age(t.date, :'company_start'::date))::int + 1 end as company_year
+  from tm_day t
+), y as (
+  select scope, ord, company_year, min(date) as d_from, max(date) as d_to,
+         count(*) as pub_days, sum(n) as downloads, avg(n) as per_day
+  from d group by scope, ord, company_year
+), z as (
+  select y.*, lag(per_day) over w as prev_per_day,
+         (select y1.per_day from y y1 where y1.scope = y.scope and y1.company_year = 1) as year1_per_day,
+         :'as_of'::date < (:'company_start'::date + make_interval(years => company_year))::date - 1
+           and company_year > 0 as partial
+  from y window w as (partition by scope order by company_year)
+)
+select scope,
+       company_year,
+       d_from, d_to, pub_days,
+       to_char(downloads, 'FM999,999,999,999')        as downloads,
+       to_char(round(per_day), 'FM999,999,999,999')   as per_day,
+       case when company_year > 1 and prev_per_day >= :base_floor then round(per_day / prev_per_day, 2) end as yoy_x,
+       case when company_year > 1 and year1_per_day > 0 then round(per_day / year1_per_day, 1) end          as since_year1_x,
+       case when company_year > 1 and year1_per_day > 0
+            then round(power(per_day / year1_per_day, 1.0 / (company_year - 1))::numeric, 2) end             as per_year_x,
+       case when partial then 'partial' else '' end   as note
+from z
+order by ord, scope, company_year;
+

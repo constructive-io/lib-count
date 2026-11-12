@@ -19,7 +19,7 @@ psql postgresql://postgres:password@localhost:5432/stats_dev -f docs/queries/gro
 | File | Question it answers |
 |---|---|
 | [`00-setup.sql`](00-setup.sql) | Shared definitions. Every other file loads it. |
-| [`01-time-momentum.sql`](01-time-momentum.sql) | How fast are downloads growing? Run-rate by month, quarter and year, trailing windows, compound monthly growth, milestones, records, a weekly series for charts. |
+| [`01-time-momentum.sql`](01-time-momentum.sql) | How fast are downloads growing? Run-rate by month, quarter and year, trailing windows, compound monthly growth, milestones, records, a weekly series for charts, and growth by company year counted from the founding date. |
 | [`02-segments-categories.sql`](02-segments-categories.sql) | Where do downloads come from? Cloud, chain and utils over time, every category, which segments produced the growth, and which categories are at a high or in decline. |
 | [`03-packages-cohorts.sql`](03-packages-cohorts.sql) | Which libraries? Leaders, fastest growers, concentration, number of packages above each size, cohorts by package age, same-store growth, new-package ramp, the Postgres parser family. |
 | [`04-quality-robustness.sql`](04-quality-robustness.sql) | Is the growth real? Missing and hollow days, weekday against weekend, spikes, step changes, growth without the top packages, packages installed together, and how much the multiple depends on the window. |
