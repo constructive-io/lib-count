@@ -2,6 +2,8 @@
 
 This document contains SQL queries for analyzing NPM download statistics from the `npm_count` schema.
 
+For growth analysis (by time, segment and library, with missing days and personal packages handled), use the runnable files in [`queries/growth/`](queries/growth/README.md).
+
 ## Schema Overview
 
 The database uses the following key tables:
