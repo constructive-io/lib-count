@@ -33,6 +33,11 @@ export function readmeCategoryDisplayName(categoryName: string): string {
 // ---------------------------------------------------------------------------
 // Brand rollups: which categories add up to Cloud, Chain and Utilities.
 //
+// The `cloud` rollup is shown as "Database" on the README and badges: about 95%
+// of its downloads are Postgres and SQL tooling (parser, pgpm, testing), and
+// "Cloud" read as usage of the hosted product. The key stays `cloud` in code
+// and in docs/queries.
+//
 // This is the single source of truth. It used to be inlined separately in
 // npm.gen-readme.ts and npm.reports.ts, and the two copies drifted: the README
 // counted pgpm and kubernetesjs as Cloud while the badges counted only launchql,

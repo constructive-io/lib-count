@@ -36,7 +36,7 @@ function generateOverallStatsTable(totals: TotalStats, windowNote: string): stri
     "| Category | Total | Monthly | Weekly |",
     "| ------- | ------ | ------- | ----- |",
     `| **Total** | ${formatNumber(totals.total.total)} | ${formatNumber(totals.total.monthly)} | ${formatNumber(totals.total.weekly)} |`,
-    `| Cloud | ${formatNumber(totals.cloud.total)} | ${formatNumber(totals.cloud.monthly)} | ${formatNumber(totals.cloud.weekly)} |`,
+    `| Database | ${formatNumber(totals.cloud.total)} | ${formatNumber(totals.cloud.monthly)} | ${formatNumber(totals.cloud.weekly)} |`,
     `| Chain | ${formatNumber(totals.chain.total)} | ${formatNumber(totals.chain.monthly)} | ${formatNumber(totals.chain.weekly)} |`,
     `| Utilities | ${formatNumber(totals.utils.total)} | ${formatNumber(totals.utils.monthly)} | ${formatNumber(totals.utils.weekly)} |`,
   ];

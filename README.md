@@ -42,7 +42,7 @@ A Postgres Package Manager for Modular Postgres
 | Category | Total | Monthly | Weekly |
 | ------- | ------ | ------- | ----- |
 | **Total** | 301,406,250 | 58,924,966 | 16,089,809 |
-| Cloud | 201,115,116 | 51,673,992 | 14,307,680 |
+| Database | 201,115,116 | 51,673,992 | 14,307,680 |
 | Chain | 73,002,022 | 2,627,004 | 629,769 |
 | Utilities | 27,287,435 | 4,623,970 | 1,152,360 |
 
@@ -1118,4 +1118,4 @@ AS DESCRIBED IN THE LICENSES, THE SOFTWARE IS PROVIDED "AS IS", AT YOUR OWN RISK
 No developer or entity involved in creating this software will be liable for any claims or damages whatsoever associated with your use, inability to use, or your interaction with other users of the code, including any direct, indirect, incidental, special, exemplary, punitive or consequential damages, or loss of profits, cryptocurrencies, tokens, or anything else of value.
 
 
-<!-- README.md automatically generated on 2026-11-12T05:46:56.953Z from lib-count repository with latest download stats -->
+<!-- README.md automatically generated on 2026-11-12T20:37:42.036Z from lib-count repository with latest download stats -->

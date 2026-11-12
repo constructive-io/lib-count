@@ -75,7 +75,7 @@ function generateTotalSection(totals: TotalStats): string {
 | *Total* | ${formatNumber(totals.total.total)} | ${formatNumber(
     totals.total.monthly
   )} | ${formatNumber(totals.total.weekly)} |
-| Cloud | ${formatNumber(totals.cloud.total)} | ${formatNumber(
+| Database | ${formatNumber(totals.cloud.total)} | ${formatNumber(
     totals.cloud.monthly
   )} | ${formatNumber(totals.cloud.weekly)} |
 | Chain | ${formatNumber(totals.chain.total)} | ${formatNumber(
@@ -204,7 +204,7 @@ async function generateBadges(
     `Chain downloads: ${totals.chain.total} (Badge: ${formatNumberForBadge(totals.chain.total)} downloads)`
   );
   console.log(
-    `Cloud downloads: ${totals.cloud.total} (Badge: ${formatNumberForBadge(totals.cloud.total)} downloads)`
+    `Database downloads: ${totals.cloud.total} (Badge: ${formatNumberForBadge(totals.cloud.total)} downloads)`
   );
   console.log(
     `Utils downloads: ${totals.utils.total} (Badge: ${formatNumberForBadge(totals.utils.total)} downloads)`
@@ -253,9 +253,10 @@ async function generateBadges(
   writeBadgeFile(libCountOutputDir, "cosmology_category.json", chainBadge);
   writeBadgeFile(libCountOutputDir, "hyperweb_category.json", chainBadge);
 
-  // Cloud (constructive) category badge - primary badge
+  // Database (constructive) category badge - primary badge. The rollup key is
+  // still `cloud`; "Database" is the label people see (see config/categories.ts).
   const cloudBadge = createBadgeJson(
-    "Cloud",
+    "Database",
     `${formatNumberForBadge(totals.cloud.total)} downloads`,
     "#01A1FF"
   );
