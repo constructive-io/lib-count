@@ -680,6 +680,7 @@ export const packages: Packages = {
     "@pgpm/meta-db-test",
     "@pgpm/meta-db",
     "@pgpm/stamps",
+    "@pgpm/supabase-schema",
     "@pgpm/supabase",
     "@pgpm/totp",
     "@pgpm/types",
